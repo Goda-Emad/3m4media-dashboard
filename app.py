@@ -10,7 +10,7 @@ st.set_page_config(
     page_title="3M4Media | Smart Marketing Intelligence",
     page_icon="📊",
     layout="wide",
-    initial_sidebar_state="collapsed"   # collapsed → زرار الفتح يبان على الموبايل
+    initial_sidebar_state="expanded"   # مفتوح على الكمبيوتر، الزرار للموبايل
 )
 
 # ==============================
@@ -658,50 +658,68 @@ st.markdown(f"""
     var btn = document.getElementById('_sdbtn');
     if(!btn) return;
 
-    function getSidebar(){{
-        return document.querySelector('[data-testid="stSidebar"]');
+    var sidebar  = null;
+    var overlay  = null;
+    var isManualOpen = false;
+
+    // انتظر يتحمل الـ DOM الأول
+    function init() {{
+        sidebar = document.querySelector('[data-testid="stSidebar"]');
+        if (!sidebar) {{ setTimeout(init, 200); return; }}
+
+        // اعمل overlay للإغلاق بالضغط برا الـ sidebar
+        overlay = document.createElement('div');
+        overlay.id = '_sdoverlay';
+        overlay.style.cssText = 'display:none;position:fixed;inset:0;z-index:2147483640;background:rgba(0,0,0,0.5);backdrop-filter:blur(2px);';
+        overlay.addEventListener('click', closeSidebar);
+        document.body.appendChild(overlay);
     }}
 
-    function isOpen(){{
-        var s = getSidebar();
-        if(!s) return false;
-        // Streamlit يحط aria-expanded أو بيغير translateX
-        var exp = s.getAttribute('aria-expanded');
-        if(exp !== null) return exp === 'true';
-        var tx = window.getComputedStyle(s).transform;
-        // لو مفيش transform أو identity = مفتوح
-        return tx === 'none' || tx === 'matrix(1, 0, 0, 1, 0, 0)';
+    function openSidebar() {{
+        if (!sidebar) return;
+        sidebar.style.cssText += ';transform:translateX(0) !important;transition:transform .35s cubic-bezier(.4,0,.2,1);visibility:visible;';
+        overlay.style.display = 'block';
+        isManualOpen = true;
     }}
 
-    function clickStreamlitBtn(){{
-        var selectors = [
-            '[data-testid="collapsedControl"]',
-            '[data-testid="stSidebarCollapsedControl"]',
-            'button[aria-label="open sidebar"]',
-            'button[aria-label="Close sidebar"]',
-            'button[aria-label="Open sidebar"]',
-        ];
-        for(var i=0;i<selectors.length;i++){{
-            var b = document.querySelector(selectors[i]);
-            if(b){{ b.click(); return true; }}
-        }}
-        return false;
-    }}
-
-    function manualToggle(){{
-        var s = getSidebar();
-        if(!s) return;
-        if(isOpen()){{
-            s.style.transform = 'translateX(-110%)';
+    function closeSidebar() {{
+        if (!sidebar) return;
+        // على الكمبيوتر الـ sidebar دايماً ظاهر — على الموبايل بس نخبيه
+        if (window.innerWidth < 768) {{
+            sidebar.style.transform = 'translateX(-110%)';
         }} else {{
-            s.style.transform = 'translateX(0)';
+            sidebar.style.transform = 'translateX(0)';
+        }}
+        overlay.style.display = 'none';
+        isManualOpen = false;
+    }}
+
+    function toggle() {{
+        if (!sidebar) {{ init(); return; }}
+
+        // حاول تضغط زرار Streamlit الأصلي أولاً (بيشتغل أحياناً)
+        var allBtns = document.querySelectorAll('button');
+        for (var i = 0; i < allBtns.length; i++) {{
+            var b = allBtns[i];
+            var testId = b.getAttribute('data-testid') || '';
+            var label  = (b.getAttribute('aria-label') || '').toLowerCase();
+            if (testId.includes('collapsed') || testId.includes('Sidebar') ||
+                label.includes('sidebar')) {{
+                b.click();
+                return;
+            }}
+        }}
+
+        // لو مالقاش — افتح/قفل يدوياً
+        if (isManualOpen) {{
+            closeSidebar();
+        }} else {{
+            openSidebar();
         }}
     }}
 
-    btn.addEventListener('click', function(){{
-        var clicked = clickStreamlitBtn();
-        if(!clicked) manualToggle();
-    }});
+    btn.addEventListener('click', toggle);
+    setTimeout(init, 500);
 }})();
 </script>
 """, unsafe_allow_html=True)
