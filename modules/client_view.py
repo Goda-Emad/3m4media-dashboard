@@ -76,10 +76,16 @@ def show_client_view(df, lang="en", theme="dark"):
     </div>
     """, unsafe_allow_html=True)
 
-    # ── KPIs: 5 cols desktop / 2+3 mobile ──
+    # ── KPIs ──
+    def fmt_num(n):
+        if n >= 1_000_000_000: return f"{n/1_000_000_000:.1f}B"
+        if n >= 1_000_000:     return f"{n/1_000_000:.1f}M"
+        if n >= 1_000:         return f"{n/1_000:.1f}K"
+        return f"{n:,}"
+
     col1, col2, col3, col4, col5 = st.columns(5)
-    with col1: st.metric(t("total_clicks"),      f"{client_df['Clicks'].sum():,}")
-    with col2: st.metric(t("total_impressions"), f"{client_df['Impressions'].sum():,}")
+    with col1: st.metric(t("total_clicks"),      fmt_num(client_df['Clicks'].sum()))
+    with col2: st.metric(t("total_impressions"), fmt_num(client_df['Impressions'].sum()))
     with col3: st.metric(t("avg_roi"),           f"{client_df['ROI'].mean():.2f}x")
     with col4: st.metric(t("avg_ctr"),           f"{client_df['CTR'].mean():.2f}%")
     with col5: st.metric(t("avg_cost"),          f"${client_df['Acquisition_Cost'].mean():,.0f}")
