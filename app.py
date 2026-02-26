@@ -279,46 +279,15 @@ hr {{ border-color: {BORDER} !important; opacity: 0.6 !important; }}
    📱 MOBILE & TABLET RESPONSIVE
    ════════════════════════════════════════ */
 
-/* ── زرار فتح/غلق الـ Sidebar — يظهر دايماً على كل device ── */
+/* ── إخفاء زرار Streamlit الأصلي ── */
 [data-testid="collapsedControl"],
 [data-testid="stSidebarCollapsedControl"] {{
-    display:          flex !important;
-    visibility:       visible !important;
-    opacity:          1 !important;
-    pointer-events:   all !important;
-    position:         fixed !important;
-    top:              12px !important;
-    left:             12px !important;
-    z-index:          999999 !important;
-    width:            44px !important;
-    height:           44px !important;
-    min-width:        44px !important;
-    min-height:       44px !important;
-    align-items:      center !important;
-    justify-content:  center !important;
-    background:       linear-gradient(135deg, {ACCENT} 0%, #007A7A 100%) !important;
-    border:           none !important;
-    border-radius:    13px !important;
-    cursor:           pointer !important;
-    box-shadow:       0 4px 20px rgba(0,180,180,0.45) !important;
-    transition:       all 0.3s ease !important;
-}}
-[data-testid="collapsedControl"]:hover,
-[data-testid="stSidebarCollapsedControl"]:hover {{
-    transform:   scale(1.08) !important;
-    box-shadow:  0 8px 32px rgba(0,180,180,0.6) !important;
-}}
-[data-testid="collapsedControl"] svg,
-[data-testid="stSidebarCollapsedControl"] svg {{
-    fill:   white !important;
-    color:  white !important;
-    width:  20px !important;
-    height: 20px !important;
+    display: none !important;
 }}
 
-/* ── Sidebar مفتوح — shadow درامي ── */
-[data-testid="stSidebar"][aria-expanded="true"] {{
-    box-shadow: 8px 0 48px rgba(0,0,0,0.5) !important;
+/* ── Sidebar transition ── */
+[data-testid="stSidebar"] {{
+    transition: transform 0.35s cubic-bezier(0.4,0,0.2,1) !important;
 }}
 
 /* ── MOBILE: max 768px ── */
@@ -531,6 +500,82 @@ def load_data():
     return df
 
 df = load_data()
+
+# ==============================
+# Sidebar Toggle Button — JavaScript
+# زرار ثابت يشتغل على موبايل وكمبيوتر
+# ==============================
+st.markdown(f"""
+<style>
+#_sdbtn {{
+    position:fixed; top:14px; left:14px; z-index:2147483647;
+    width:44px; height:44px;
+    background:linear-gradient(135deg,{ACCENT},#007A7A);
+    border:none; border-radius:13px; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:0 4px 20px rgba(0,180,180,0.45);
+    transition:all .3s ease;
+}}
+#_sdbtn:hover{{transform:scale(1.1);box-shadow:0 8px 32px rgba(0,180,180,0.6);}}
+#_sdbtn svg{{width:22px;height:22px;fill:white;pointer-events:none;}}
+</style>
+
+<button id="_sdbtn" title="Toggle Sidebar">
+  <svg viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+</button>
+
+<script>
+(function(){{
+    var btn = document.getElementById('_sdbtn');
+    if(!btn) return;
+
+    function getSidebar(){{
+        return document.querySelector('[data-testid="stSidebar"]');
+    }}
+
+    function isOpen(){{
+        var s = getSidebar();
+        if(!s) return false;
+        // Streamlit يحط aria-expanded أو بيغير translateX
+        var exp = s.getAttribute('aria-expanded');
+        if(exp !== null) return exp === 'true';
+        var tx = window.getComputedStyle(s).transform;
+        // لو مفيش transform أو identity = مفتوح
+        return tx === 'none' || tx === 'matrix(1, 0, 0, 1, 0, 0)';
+    }}
+
+    function clickStreamlitBtn(){{
+        var selectors = [
+            '[data-testid="collapsedControl"]',
+            '[data-testid="stSidebarCollapsedControl"]',
+            'button[aria-label="open sidebar"]',
+            'button[aria-label="Close sidebar"]',
+            'button[aria-label="Open sidebar"]',
+        ];
+        for(var i=0;i<selectors.length;i++){{
+            var b = document.querySelector(selectors[i]);
+            if(b){{ b.click(); return true; }}
+        }}
+        return false;
+    }}
+
+    function manualToggle(){{
+        var s = getSidebar();
+        if(!s) return;
+        if(isOpen()){{
+            s.style.transform = 'translateX(-110%)';
+        }} else {{
+            s.style.transform = 'translateX(0)';
+        }}
+    }}
+
+    btn.addEventListener('click', function(){{
+        var clicked = clickStreamlitBtn();
+        if(!clicked) manualToggle();
+    }});
+}})();
+</script>
+""", unsafe_allow_html=True)
 
 # ==============================
 # Sidebar
