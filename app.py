@@ -279,43 +279,44 @@ hr {{ border-color: {BORDER} !important; opacity: 0.6 !important; }}
    📱 MOBILE & TABLET RESPONSIVE
    ════════════════════════════════════════ */
 
-/* ── إخفاء زرار Streamlit الأصلي ── */
+/* ── زرار فتح/غلق الـ Sidebar — يظهر دايماً على كل device ── */
 [data-testid="collapsedControl"],
 [data-testid="stSidebarCollapsedControl"] {{
-    visibility: hidden !important;
-    opacity: 0 !important;
-    pointer-events: none !important;
+    display:          flex !important;
+    visibility:       visible !important;
+    opacity:          1 !important;
+    pointer-events:   all !important;
+    position:         fixed !important;
+    top:              12px !important;
+    left:             12px !important;
+    z-index:          999999 !important;
+    width:            44px !important;
+    height:           44px !important;
+    min-width:        44px !important;
+    min-height:       44px !important;
+    align-items:      center !important;
+    justify-content:  center !important;
+    background:       linear-gradient(135deg, {ACCENT} 0%, #007A7A 100%) !important;
+    border:           none !important;
+    border-radius:    13px !important;
+    cursor:           pointer !important;
+    box-shadow:       0 4px 20px rgba(0,180,180,0.45) !important;
+    transition:       all 0.3s ease !important;
+}}
+[data-testid="collapsedControl"]:hover,
+[data-testid="stSidebarCollapsedControl"]:hover {{
+    transform:   scale(1.08) !important;
+    box-shadow:  0 8px 32px rgba(0,180,180,0.6) !important;
+}}
+[data-testid="collapsedControl"] svg,
+[data-testid="stSidebarCollapsedControl"] svg {{
+    fill:   white !important;
+    color:  white !important;
+    width:  20px !important;
+    height: 20px !important;
 }}
 
-/* ── زرار الـ Sidebar المخصص بتاعنا ── */
-#custom-sidebar-btn {{
-    position: fixed !important;
-    top: 14px !important;
-    left: 14px !important;
-    z-index: 999999 !important;
-    width: 48px !important;
-    height: 48px !important;
-    background: linear-gradient(135deg, {ACCENT} 0%, #007A7A 100%) !important;
-    border: none !important;
-    border-radius: 14px !important;
-    cursor: pointer !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    box-shadow: 0 4px 24px rgba(0,180,180,0.45) !important;
-    transition: all 0.3s ease !important;
-}}
-#custom-sidebar-btn:hover {{
-    transform: scale(1.08) !important;
-    box-shadow: 0 8px 32px rgba(0,180,180,0.6) !important;
-}}
-#custom-sidebar-btn svg {{
-    width: 22px; height: 22px;
-    fill: white;
-    transition: transform 0.3s ease;
-}}
-
-/* ── Sidebar open ── */
+/* ── Sidebar مفتوح — shadow درامي ── */
 [data-testid="stSidebar"][aria-expanded="true"] {{
     box-shadow: 8px 0 48px rgba(0,0,0,0.5) !important;
 }}
@@ -435,76 +436,6 @@ hr {{ border-color: {BORDER} !important; opacity: 0.6 !important; }}
     }}
 }}
 </style>
-""", unsafe_allow_html=True)
-
-# ==============================
-# Custom Sidebar Toggle Button (JavaScript)
-# يشتغل على موبايل وكمبيوتر — مش بيتأثر بـ Streamlit version
-# ==============================
-st.markdown(f"""
-<button id="custom-sidebar-btn" onclick="toggleSidebar()" title="Toggle Sidebar">
-    <svg id="sidebar-icon-open" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
-    </svg>
-    <svg id="sidebar-icon-close" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="display:none;">
-        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
-    </svg>
-</button>
-
-<script>
-(function() {{
-    let isOpen = false;
-
-    function toggleSidebar() {{
-        // دور على زرار Streamlit الأصلي واضغط عليه
-        const selectors = [
-            '[data-testid="collapsedControl"]',
-            '[data-testid="stSidebarCollapsedControl"]',
-            'button[aria-label="open sidebar"]',
-            'button[aria-label="Close sidebar"]',
-            'button[title="open sidebar"]',
-            'button[title="Close sidebar"]',
-        ];
-
-        let clicked = false;
-        for (const sel of selectors) {{
-            const btn = document.querySelector(sel);
-            if (btn) {{
-                btn.click();
-                clicked = true;
-                break;
-            }}
-        }}
-
-        // لو مافيش زرار — افتح/قفل الـ sidebar يدوياً
-        if (!clicked) {{
-            const sidebar = document.querySelector('[data-testid="stSidebar"]');
-            if (sidebar) {{
-                isOpen = !isOpen;
-                sidebar.style.transform = isOpen ? 'translateX(0)' : 'translateX(-100%)';
-                sidebar.style.transition = 'transform 0.35s cubic-bezier(0.4,0,0.2,1)';
-            }}
-        }}
-
-        // غير الأيقونة
-        const iconOpen  = document.getElementById('sidebar-icon-open');
-        const iconClose = document.getElementById('sidebar-icon-close');
-        const sidebar   = document.querySelector('[data-testid="stSidebar"]');
-        const expanded  = sidebar?.getAttribute('aria-expanded');
-
-        if (expanded === 'true' || isOpen) {{
-            if(iconOpen)  iconOpen.style.display  = 'none';
-            if(iconClose) iconClose.style.display = 'block';
-        }} else {{
-            if(iconOpen)  iconOpen.style.display  = 'block';
-            if(iconClose) iconClose.style.display = 'none';
-        }}
-    }}
-
-    // اعمل الدالة global
-    window.toggleSidebar = toggleSidebar;
-}})();
-</script>
 """, unsafe_allow_html=True)
 
 # ==============================
