@@ -1,0 +1,119 @@
+
+/* ==============================
+   3M4Media Dashboard - Style
+   ============================== */
+
+/* Main Background */
+.stApp {
+    background-color: #0A0F1E;
+    color: #FFFFFF;
+}
+
+/* Sidebar */
+[data-testid="stSidebar"] {
+    background-color: #060B14;
+    border-right: 1px solid #00B4B4;
+}
+
+/* Sidebar Text */
+[data-testid="stSidebar"] * {
+    color: #FFFFFF !important;
+}
+
+/* Metric Cards */
+[data-testid="metric-container"] {
+    background: linear-gradient(135deg, #0D1B2A, #1A2F4A);
+    border: 1px solid #00B4B4;
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 4px 15px rgba(0, 180, 180, 0.15);
+}
+
+[data-testid="stMetricValue"] {
+    color: #00B4B4 !important;
+    font-size: 1.8rem !important;
+    font-weight: 700 !important;
+}
+
+[data-testid="stMetricLabel"] {
+    color: #A0AEC0 !important;
+    font-size: 0.85rem !important;
+}
+
+/* Buttons */
+.stButton > button {
+    background: linear-gradient(135deg, #00B4B4, #007A7A);
+    color: #FFFFFF;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 24px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 180, 180, 0.3);
+}
+
+.stButton > button:hover {
+    background: linear-gradient(135deg, #007A7A, #005555);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 180, 180, 0.4);
+}
+
+/* Headers */
+h1 {
+    color: #FFFFFF !important;
+    font-size: 2rem !important;
+    font-weight: 700 !important;
+    border-bottom: 2px solid #00B4B4;
+    padding-bottom: 10px;
+}
+
+h2, h3 {
+    color: #00B4B4 !important;
+    font-weight: 600 !important;
+}
+
+/* Selectbox & Radio */
+[data-testid="stSelectbox"],
+[data-testid="stRadio"] {
+    background-color: #0D1B2A;
+    border-radius: 8px;
+}
+
+/* Divider */
+hr {
+    border-color: #00B4B4 !important;
+    opacity: 0.3;
+}
+
+/* File Uploader */
+[data-testid="stFileUploader"] {
+    background-color: #0D1B2A;
+    border: 2px dashed #00B4B4;
+    border-radius: 12px;
+    padding: 20px;
+}
+
+/* Success / Info / Warning */
+.stSuccess {
+    background-color: rgba(0, 180, 180, 0.1) !important;
+    border-left: 4px solid #00B4B4 !important;
+}
+
+.stInfo {
+    background-color: rgba(0, 100, 180, 0.1) !important;
+    border-left: 4px solid #0064B4 !important;
+}
+
+/* Dataframe */
+[data-testid="stDataFrame"] {
+    border: 1px solid #00B4B4;
+    border-radius: 8px;
+}
+
+/* Logo in sidebar */
+[data-testid="stSidebar"] img {
+    border-radius: 12px;
+    border: 2px solid #00B4B4;
+    padding: 4px;
+}
