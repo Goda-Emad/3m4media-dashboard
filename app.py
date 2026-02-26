@@ -68,7 +68,7 @@ if 'bg_image' in st.session_state:
     """
 
 # ==============================
-# Inject CSS
+# Inject CSS (مع إضافة تحسينات التليفون وحل مشكلة السهم)
 # ==============================
 st.markdown(f"""
 <style>
@@ -256,7 +256,179 @@ hr {{ border-color: {BORDER} !important; opacity: 0.6 !important; }}
     border-color: {ACCENT} !important;
     box-shadow: 0 0 20px rgba(0,180,180,0.3) !important;
 }}
+
+/* ============================== */
+/* 🆕 تحسينات التليفون وحل مشكلة السهم */
+/* ============================== */
+
+/* زر إظهار القائمة الجانبية (حل مشكلة السهم) */
+.show-sidebar-btn {{
+    position: fixed;
+    bottom: 80px;
+    left: 20px;
+    background: {ACCENT};
+    color: white;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0,180,180,0.4);
+    z-index: 9999;
+    font-size: 1.3rem;
+    border: 2px solid rgba(255,255,255,0.2);
+    transition: all 0.3s ease;
+    backdrop-filter: blur(5px);
+    animation: pulse 2s infinite;
+}}
+.show-sidebar-btn:hover {{
+    transform: scale(1.1);
+    box-shadow: 0 8px 25px rgba(0,180,180,0.6);
+}}
+
+/* رسالة توجيهية */
+.sidebar-tip {{
+    position: fixed;
+    bottom: 140px;
+    left: 25px;
+    background: {GLASS_CARD};
+    backdrop-filter: blur(10px);
+    color: {TEXT};
+    padding: 10px 18px;
+    border-radius: 30px;
+    font-size: 0.85rem;
+    z-index: 9998;
+    border-left: 3px solid {ACCENT};
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    animation: fadeTip 3s infinite;
+    max-width: 250px;
+    border: 1px solid {BORDER};
+}}
+@keyframes fadeTip {{
+    0% {{ opacity: 0; transform: translateY(10px); }}
+    10% {{ opacity: 1; transform: translateY(0); }}
+    90% {{ opacity: 1; transform: translateY(0); }}
+    100% {{ opacity: 0; transform: translateY(-10px); }}
+}}
+
+@keyframes pulse {{
+    0% {{ transform: scale(1); }}
+    50% {{ transform: scale(1.05); }}
+    100% {{ transform: scale(1); }}
+}}
+
+/* تحسينات التليفون */
+@media (max-width: 768px) {{
+    /* تحجيم الخطوط */
+    h1 {{ font-size: 1.5rem !important; }}
+    h2 {{ font-size: 1.3rem !important; }}
+    h3 {{ font-size: 1.1rem !important; }}
+    
+    /* الأعمدة تأخذ عرض كامل */
+    div[data-testid="column"] {{
+        width: 100% !important;
+        flex: 0 0 100% !important;
+        min-width: 100% !important;
+        margin-bottom: 15px !important;
+    }}
+    
+    /* البطاقات */
+    [data-testid="metric-container"] {{
+        padding: 15px !important;
+    }}
+    [data-testid="stMetricValue"] {{
+        font-size: 1.5rem !important;
+    }}
+    
+    /* القائمة العلوية */
+    .mobile-nav {{
+        display: flex !important;
+        justify-content: space-around;
+        background: {GLASS_CARD};
+        backdrop-filter: blur(10px);
+        padding: 8px 5px;
+        border-radius: 40px;
+        margin-bottom: 20px;
+        border: 1px solid {BORDER};
+    }}
+    .mobile-nav-btn {{
+        flex: 1;
+        text-align: center;
+        padding: 8px 2px;
+        border-radius: 30px;
+        font-size: 0.7rem;
+        color: {SUBTEXT};
+        transition: all 0.3s;
+        cursor: pointer;
+    }}
+    .mobile-nav-btn.active {{
+        background: {ACCENT};
+        color: white;
+        font-weight: 600;
+    }}
+    
+    /* تحسين ظهور الجداول */
+    div[data-testid="stDataFrame"] {{
+        overflow-x: auto !important;
+        font-size: 0.75rem !important;
+    }}
+    
+    /* خفاء العناصر غير الضرورية */
+    .css-17lntkn, .css-1r6slb0.css-1wgc5nf {{
+        display: none !important;
+    }}
+    
+    /* تحسين أزرار التحميل */
+    .stButton > button {{
+        padding: 8px 12px !important;
+        font-size: 0.7rem !important;
+    }}
+    
+    /* تكبير الزر في التليفون */
+    .show-sidebar-btn {{
+        bottom: 90px;
+        width: 55px;
+        height: 55px;
+        font-size: 1.5rem;
+    }}
+    .sidebar-tip {{
+        bottom: 155px;
+        font-size: 0.8rem;
+        padding: 8px 15px;
+    }}
+}}
+
+@media (min-width: 769px) {{
+    .mobile-nav {{ display: none !important; }}
+}}
 </style>
+""", unsafe_allow_html=True)
+
+# ==============================
+# إضافة القائمة العلوية للتليفون
+# ==============================
+st.markdown("""
+<div class="mobile-nav">
+    <div class="mobile-nav-btn" onclick="window.location.href='?page=overview'">📊 نظرة عامة</div>
+    <div class="mobile-nav-btn" onclick="window.location.href='?page=client'">👤 عميل</div>
+    <div class="mobile-nav-btn" onclick="window.location.href='?page=ai'">🤖 توصيات</div>
+    <div class="mobile-nav-btn" onclick="window.location.href='?page=upload'">📁 رفع</div>
+</div>
+""", unsafe_allow_html=True)
+
+# ==============================
+# إضافة زر إظهار القائمة (حل مشكلة السهم)
+# ==============================
+st.markdown(f"""
+<div class="show-sidebar-btn" onclick="window.location.reload();" title="إظهار القائمة الجانبية">
+    ☰
+</div>
+<div class="sidebar-tip">
+    💡 <strong>القائمة اختفت؟</strong><br>
+    اضغط على الزر الأزرق 👈 لإظهارها مرة أخرى
+</div>
 """, unsafe_allow_html=True)
 
 # ==============================
