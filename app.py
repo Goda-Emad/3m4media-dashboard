@@ -279,42 +279,43 @@ hr {{ border-color: {BORDER} !important; opacity: 0.6 !important; }}
    📱 MOBILE & TABLET RESPONSIVE
    ════════════════════════════════════════ */
 
-/* ── زرار فتح الـ Sidebar — كل الأشكال الممكنة في Streamlit ── */
+/* ── إخفاء زرار Streamlit الأصلي ── */
 [data-testid="collapsedControl"],
-button[kind="headerNoPadding"],
-.st-emotion-cache-1egp75f,
-section[data-testid="stSidebar"] + div button,
-[aria-label="open sidebar"],
-[aria-label="Close sidebar"],
 [data-testid="stSidebarCollapsedControl"] {{
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}}
+
+/* ── زرار الـ Sidebar المخصص بتاعنا ── */
+#custom-sidebar-btn {{
+    position: fixed !important;
+    top: 14px !important;
+    left: 14px !important;
+    z-index: 999999 !important;
+    width: 48px !important;
+    height: 48px !important;
+    background: linear-gradient(135deg, {ACCENT} 0%, #007A7A 100%) !important;
+    border: none !important;
+    border-radius: 14px !important;
+    cursor: pointer !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    width: 48px !important;
-    height: 48px !important;
-    min-width: 48px !important;
-    background: linear-gradient(135deg, {ACCENT} 0%, #007A7A 100%) !important;
-    border-radius: 14px !important;
-    border: none !important;
     box-shadow: 0 4px 24px rgba(0,180,180,0.45) !important;
-    position: fixed !important;
-    top: 12px !important;
-    left: 12px !important;
-    z-index: 999999 !important;
-    cursor: pointer !important;
     transition: all 0.3s ease !important;
-    visibility: visible !important;
-    opacity: 1 !important;
 }}
-[data-testid="collapsedControl"] svg,
-[data-testid="stSidebarCollapsedControl"] svg {{
-    fill: white !important;
-    color: white !important;
-    width: 22px !important;
-    height: 22px !important;
+#custom-sidebar-btn:hover {{
+    transform: scale(1.08) !important;
+    box-shadow: 0 8px 32px rgba(0,180,180,0.6) !important;
+}}
+#custom-sidebar-btn svg {{
+    width: 22px; height: 22px;
+    fill: white;
+    transition: transform 0.3s ease;
 }}
 
-/* ── Sidebar open state ── */
+/* ── Sidebar open ── */
 [data-testid="stSidebar"][aria-expanded="true"] {{
     box-shadow: 8px 0 48px rgba(0,0,0,0.5) !important;
 }}
@@ -434,6 +435,76 @@ section[data-testid="stSidebar"] + div button,
     }}
 }}
 </style>
+""", unsafe_allow_html=True)
+
+# ==============================
+# Custom Sidebar Toggle Button (JavaScript)
+# يشتغل على موبايل وكمبيوتر — مش بيتأثر بـ Streamlit version
+# ==============================
+st.markdown(f"""
+<button id="custom-sidebar-btn" onclick="toggleSidebar()" title="Toggle Sidebar">
+    <svg id="sidebar-icon-open" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
+    </svg>
+    <svg id="sidebar-icon-close" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="display:none;">
+        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+    </svg>
+</button>
+
+<script>
+(function() {{
+    let isOpen = false;
+
+    function toggleSidebar() {{
+        // دور على زرار Streamlit الأصلي واضغط عليه
+        const selectors = [
+            '[data-testid="collapsedControl"]',
+            '[data-testid="stSidebarCollapsedControl"]',
+            'button[aria-label="open sidebar"]',
+            'button[aria-label="Close sidebar"]',
+            'button[title="open sidebar"]',
+            'button[title="Close sidebar"]',
+        ];
+
+        let clicked = false;
+        for (const sel of selectors) {{
+            const btn = document.querySelector(sel);
+            if (btn) {{
+                btn.click();
+                clicked = true;
+                break;
+            }}
+        }}
+
+        // لو مافيش زرار — افتح/قفل الـ sidebar يدوياً
+        if (!clicked) {{
+            const sidebar = document.querySelector('[data-testid="stSidebar"]');
+            if (sidebar) {{
+                isOpen = !isOpen;
+                sidebar.style.transform = isOpen ? 'translateX(0)' : 'translateX(-100%)';
+                sidebar.style.transition = 'transform 0.35s cubic-bezier(0.4,0,0.2,1)';
+            }}
+        }}
+
+        // غير الأيقونة
+        const iconOpen  = document.getElementById('sidebar-icon-open');
+        const iconClose = document.getElementById('sidebar-icon-close');
+        const sidebar   = document.querySelector('[data-testid="stSidebar"]');
+        const expanded  = sidebar?.getAttribute('aria-expanded');
+
+        if (expanded === 'true' || isOpen) {{
+            if(iconOpen)  iconOpen.style.display  = 'none';
+            if(iconClose) iconClose.style.display = 'block';
+        }} else {{
+            if(iconOpen)  iconOpen.style.display  = 'block';
+            if(iconClose) iconClose.style.display = 'none';
+        }}
+    }}
+
+    // اعمل الدالة global
+    window.toggleSidebar = toggleSidebar;
+}})();
+</script>
 """, unsafe_allow_html=True)
 
 # ==============================
