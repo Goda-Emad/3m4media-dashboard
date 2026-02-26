@@ -3,7 +3,7 @@ import pandas as pd
 import os
 
 # ==============================
-# Page Config
+# Page Config — أول سطر دايماً
 # ==============================
 st.set_page_config(
     page_title="3M4Media | Smart Marketing Intelligence",
@@ -19,7 +19,56 @@ with open('assets/style.css') as f:
     st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
 
 # ==============================
-# Session State Defaults
+# Force Sidebar Always Visible
+# ==============================
+st.markdown("""
+<style>
+[data-testid="stSidebar"] {
+    display: block !important;
+    visibility: visible !important;
+    transform: none !important;
+    z-index: 99998 !important;
+    min-width: 240px !important;
+}
+
+[data-testid="collapsedControl"] {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    background: #00B4B4 !important;
+    border-radius: 0 12px 12px 0 !important;
+    border: none !important;
+    width: 30px !important;
+    height: 60px !important;
+    position: fixed !important;
+    left: 0 !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    z-index: 999999 !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-shadow: 4px 0 20px rgba(0,180,180,0.6) !important;
+    cursor: pointer !important;
+}
+
+[data-testid="collapsedControl"] svg {
+    fill: white !important;
+    color: white !important;
+    display: block !important;
+    width: 16px !important;
+    height: 16px !important;
+}
+
+button[kind="header"] {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
+# ==============================
+# Session State
 # ==============================
 if 'lang' not in st.session_state:
     st.session_state['lang'] = 'en'
@@ -33,17 +82,17 @@ theme = st.session_state['theme']
 # Theme Colors
 # ==============================
 if theme == 'dark':
-    TEXT        = "#FFFFFF"
-    SUBTEXT     = "#8899AA"
-    BORDER      = "rgba(0,180,180,0.2)"
-    ACCENT      = "#00B4B4"
-    GLASS_CARD  = "rgba(255,255,255,0.04)"
+    TEXT       = "#FFFFFF"
+    SUBTEXT    = "#8899AA"
+    BORDER     = "rgba(0,180,180,0.2)"
+    ACCENT     = "#00B4B4"
+    GLASS_CARD = "rgba(255,255,255,0.04)"
 else:
-    TEXT        = "#0A1628"
-    SUBTEXT     = "#4A6080"
-    BORDER      = "rgba(0,120,120,0.25)"
-    ACCENT      = "#006B6B"
-    GLASS_CARD  = "rgba(255,255,255,0.55)"
+    TEXT       = "#0A1628"
+    SUBTEXT    = "#4A6080"
+    BORDER     = "rgba(0,120,120,0.25)"
+    ACCENT     = "#006B6B"
+    GLASS_CARD = "rgba(255,255,255,0.55)"
 
 # ==============================
 # Dynamic Theme CSS
@@ -51,18 +100,22 @@ else:
 st.markdown(f"""
 <style>
 .stApp {{
-    background: {"linear-gradient(135deg,#060B14 0%,#0A0F1E 60%,#060B14 100%)" 
-                 if theme=="dark" else 
+    background: {"linear-gradient(135deg,#060B14 0%,#0A0F1E 60%,#060B14 100%)"
+                 if theme == "dark" else
                  "linear-gradient(135deg,#EEF2F7 0%,#DDE6F0 100%)"} !important;
     color: {TEXT} !important;
 }}
 
 .block-container {{
-    background: {"rgba(6,11,20,0.45)" if theme=="dark" else "rgba(240,244,248,0.55)"} !important;
+    background: {"rgba(6,11,20,0.45)"
+                 if theme == "dark" else
+                 "rgba(240,244,248,0.55)"} !important;
 }}
 
 [data-testid="stSidebar"] {{
-    background: {"rgba(4,8,16,0.55)" if theme=="dark" else "rgba(220,232,245,0.65)"} !important;
+    background: {"rgba(4,8,16,0.55)"
+                 if theme == "dark" else
+                 "rgba(220,232,245,0.65)"} !important;
 }}
 
 [data-testid="stMetricValue"] {{
@@ -184,8 +237,8 @@ with st.sidebar:
         <div style='text-align:center; padding:16px 0;'>
             <span style='font-family:Syne,sans-serif; font-size:2rem;
                          font-weight:800; color:{ACCENT};'>3M</span>
-            <span style='font-family:Syne,sans-serif; font-size:0.9rem;
-                         color:{SUBTEXT}; display:block; letter-spacing:5px;'>MEDIA</span>
+            <span style='font-family:Syne,sans-serif; font-size:0.9rem; color:{SUBTEXT};
+                         display:block; letter-spacing:5px;'>MEDIA</span>
         </div>
         """, unsafe_allow_html=True)
 
@@ -195,11 +248,11 @@ with st.sidebar:
     st.markdown(f"<p style='color:{SUBTEXT}; font-size:0.70rem; text-transform:uppercase; letter-spacing:2px; margin:0 0 6px 0;'>&#127760; {t('language')}</p>", unsafe_allow_html=True)
     c1, c2 = st.columns(2)
     with c1:
-        if st.button("&#127468;&#127463; EN", use_container_width=True, key="btn_en"):
+        if st.button("EN", use_container_width=True, key="btn_en"):
             st.session_state['lang'] = 'en'
             st.rerun()
     with c2:
-        if st.button("&#127466;&#127468; AR", use_container_width=True, key="btn_ar"):
+        if st.button("AR", use_container_width=True, key="btn_ar"):
             st.session_state['lang'] = 'ar'
             st.rerun()
 
@@ -295,8 +348,9 @@ with st.sidebar:
             <div>
                 <p style='margin:0; font-size:0.80rem; font-weight:700;
                           color:{TEXT};'>Eng. Issa Mkhaimer</p>
-                <p style='margin:0; font-size:0.68rem;
-                          color:{SUBTEXT};'>@3essa.official</p>
+                <p style='margin:0; font-size:0.68rem; color:{SUBTEXT};'>
+                    @3essa.official
+                </p>
             </div>
         </a>
         <a href='https://www.instagram.com/3m4media'
@@ -310,8 +364,9 @@ with st.sidebar:
             <div>
                 <p style='margin:0; font-size:0.80rem; font-weight:700;
                           color:{ACCENT};'>3M4Media</p>
-                <p style='margin:0; font-size:0.68rem;
-                          color:{SUBTEXT};'>@3m4media</p>
+                <p style='margin:0; font-size:0.68rem; color:{SUBTEXT};'>
+                    @3m4media
+                </p>
             </div>
         </a>
     </div>
