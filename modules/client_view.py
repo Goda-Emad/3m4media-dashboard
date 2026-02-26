@@ -7,7 +7,6 @@ from modules.pdf_report import generate_pdf
 
 def show_client_view(df, lang="en", theme="dark"):
 
-    # ── Theme Settings ──
     template   = "plotly_dark"   if theme == "dark" else "plotly_white"
     bg_color   = "rgba(0,0,0,0)" if theme == "dark" else "rgba(255,255,255,0.6)"
     accent     = "#00B4B4"       if theme == "dark" else "#006B6B"
@@ -17,6 +16,24 @@ def show_client_view(df, lang="en", theme="dark"):
     border     = "rgba(0,180,180,0.2)"  if theme == "dark" else "rgba(0,120,120,0.2)"
 
     t = lambda key: get_text(key, lang)
+
+    # ── Mobile CSS ──
+    st.markdown("""
+    <style>
+    @media screen and (max-width: 768px) {
+        /* KPI 2 columns on mobile */
+        [data-testid="column"] {
+            min-width: calc(50% - 8px) !important;
+            flex: 0 0 calc(50% - 8px) !important;
+        }
+        /* Insight cards full width */
+        .insight-card-row [data-testid="column"] {
+            min-width: 100% !important;
+            flex: 0 0 100% !important;
+        }
+    }
+    </style>
+    """, unsafe_allow_html=True)
 
     # ── Page Banner ──
     st.markdown(f"""
@@ -38,14 +55,9 @@ def show_client_view(df, lang="en", theme="dark"):
     clients = sorted(df['Company'].unique().tolist())
     col_sel, col_empty = st.columns([2, 3])
     with col_sel:
-        selected = st.selectbox(
-            t("select_client"),
-            clients,
-            key="client_selector"
-        )
+        selected = st.selectbox(t("select_client"), clients, key="client_selector")
 
     client_df = df[df['Company'] == selected].copy()
-
     st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
 
     # ── Client Header ──
@@ -56,8 +68,7 @@ def show_client_view(df, lang="en", theme="dark"):
                 backdrop-filter:blur(10px);'>
         <h2 style='font-family:Syne,sans-serif; font-size:1.4rem; font-weight:800;
                    color:{text_color}; margin:0;'>📊 {selected}</h2>
-        <p style='color:{subtext}; font-size:0.75rem; margin:4px 0 0 0;
-                  letter-spacing:1px;'>
+        <p style='color:{subtext}; font-size:0.75rem; margin:4px 0 0 0; letter-spacing:1px;'>
             {client_df.shape[0]:,} campaigns &nbsp;|&nbsp;
             {client_df['Channel_Used'].nunique()} platforms &nbsp;|&nbsp;
             {client_df['Campaign_Goal'].nunique()} goals
@@ -65,18 +76,13 @@ def show_client_view(df, lang="en", theme="dark"):
     </div>
     """, unsafe_allow_html=True)
 
-    # ── KPIs ──
+    # ── KPIs: 5 cols desktop / 2+3 mobile ──
     col1, col2, col3, col4, col5 = st.columns(5)
-    with col1:
-        st.metric(t("total_clicks"),      f"{client_df['Clicks'].sum():,}")
-    with col2:
-        st.metric(t("total_impressions"), f"{client_df['Impressions'].sum():,}")
-    with col3:
-        st.metric(t("avg_roi"),           f"{client_df['ROI'].mean():.2f}x")
-    with col4:
-        st.metric(t("avg_ctr"),           f"{client_df['CTR'].mean():.2f}%")
-    with col5:
-        st.metric(t("avg_cost"),          f"${client_df['Acquisition_Cost'].mean():,.0f}")
+    with col1: st.metric(t("total_clicks"),      f"{client_df['Clicks'].sum():,}")
+    with col2: st.metric(t("total_impressions"), f"{client_df['Impressions'].sum():,}")
+    with col3: st.metric(t("avg_roi"),           f"{client_df['ROI'].mean():.2f}x")
+    with col4: st.metric(t("avg_ctr"),           f"{client_df['CTR'].mean():.2f}%")
+    with col5: st.metric(t("avg_cost"),          f"${client_df['Acquisition_Cost'].mean():,.0f}")
 
     st.markdown("<div style='height:20px'></div>", unsafe_allow_html=True)
 
@@ -85,7 +91,6 @@ def show_client_view(df, lang="en", theme="dark"):
 
     with col1:
         st.markdown(f"<p style='color:{accent}; font-size:0.75rem; text-transform:uppercase; letter-spacing:2px; font-weight:700;'>{t('platform_comparison')}</p>", unsafe_allow_html=True)
-
         platform = client_df.groupby('Channel_Used').agg(
             ROI=('ROI','mean'),
             Clicks=('Clicks','sum'),
@@ -96,38 +101,30 @@ def show_client_view(df, lang="en", theme="dark"):
             platform, x='Channel_Used', y='ROI',
             color='Channel_Used',
             color_discrete_sequence=['#00B4B4','#7B2FBE','#FF6B6B','#51CF66'],
-            template=template,
-            text='ROI',
+            template=template, text='ROI',
             hover_data=['Clicks','Campaigns']
         )
-        fig1.update_traces(
-            texttemplate='%{text:.2f}x',
-            textposition='outside'
-        )
+        fig1.update_traces(texttemplate='%{text:.2f}x', textposition='outside')
         fig1.update_layout(
-            plot_bgcolor=bg_color,
-            paper_bgcolor=bg_color,
-            showlegend=False,
-            margin=dict(t=20,b=20,l=10,r=10),
+            plot_bgcolor=bg_color, paper_bgcolor=bg_color,
+            showlegend=False, margin=dict(t=20,b=20,l=10,r=10),
             xaxis_title="", yaxis_title="Avg ROI"
         )
         st.plotly_chart(fig1, use_container_width=True)
 
     with col2:
         st.markdown(f"<p style='color:{accent}; font-size:0.75rem; text-transform:uppercase; letter-spacing:2px; font-weight:700;'>{t('campaign_performance')}</p>", unsafe_allow_html=True)
-
         goal = client_df.groupby('Campaign_Goal')['ROI'].mean().reset_index()
 
         fig2 = px.pie(
             goal, values='ROI', names='Campaign_Goal',
             color_discrete_sequence=['#00B4B4','#7B2FBE','#FF6B6B','#51CF66'],
-            template=template,
-            hole=0.45
+            template=template, hole=0.45
         )
         fig2.update_layout(
-            plot_bgcolor=bg_color,
-            paper_bgcolor=bg_color,
-            margin=dict(t=20,b=20,l=10,r=10)
+            plot_bgcolor=bg_color, paper_bgcolor=bg_color,
+            margin=dict(t=20,b=20,l=10,r=10),
+            legend=dict(orientation="h", yanchor="bottom", y=-0.25)
         )
         st.plotly_chart(fig2, use_container_width=True)
 
@@ -136,7 +133,6 @@ def show_client_view(df, lang="en", theme="dark"):
 
     with col3:
         st.markdown(f"<p style='color:{accent}; font-size:0.75rem; text-transform:uppercase; letter-spacing:2px; font-weight:700;'>{t('monthly_trend')}</p>", unsafe_allow_html=True)
-
         monthly = client_df.groupby('Month').agg(
             ROI=('ROI','mean'),
             Clicks=('Clicks','sum'),
@@ -146,28 +142,20 @@ def show_client_view(df, lang="en", theme="dark"):
         fig3 = go.Figure()
         fig3.add_trace(go.Scatter(
             x=monthly['Month'], y=monthly['ROI'],
-            mode='lines+markers',
-            name='ROI',
+            mode='lines+markers', name='ROI',
             line=dict(color='#00B4B4', width=3),
-            marker=dict(size=8, color='#00B4B4',
-                       line=dict(width=2, color='white')),
-            fill='tozeroy',
-            fillcolor='rgba(0,180,180,0.08)'
+            marker=dict(size=8, color='#00B4B4', line=dict(width=2, color='white')),
+            fill='tozeroy', fillcolor='rgba(0,180,180,0.08)'
         ))
         fig3.update_layout(
-            template=template,
-            plot_bgcolor=bg_color,
-            paper_bgcolor=bg_color,
+            template=template, plot_bgcolor=bg_color, paper_bgcolor=bg_color,
             margin=dict(t=20,b=20,l=10,r=10),
-            xaxis_title="Month",
-            yaxis_title="Avg ROI",
-            showlegend=False
+            xaxis_title="Month", yaxis_title="Avg ROI", showlegend=False
         )
         st.plotly_chart(fig3, use_container_width=True)
 
     with col4:
         st.markdown(f"<p style='color:{accent}; font-size:0.75rem; text-transform:uppercase; letter-spacing:2px; font-weight:700;'>Conversion Rate by Platform</p>", unsafe_allow_html=True)
-
         conv = client_df.groupby('Channel_Used')['Conversion_Rate'].mean().reset_index()
         conv['Conversion_Rate'] = (conv['Conversion_Rate'] * 100).round(2)
 
@@ -175,74 +163,46 @@ def show_client_view(df, lang="en", theme="dark"):
             conv, x='Channel_Used', y='Conversion_Rate',
             color='Channel_Used',
             color_discrete_sequence=['#00B4B4','#7B2FBE','#FF6B6B','#51CF66'],
-            template=template,
-            text='Conversion_Rate'
+            template=template, text='Conversion_Rate'
         )
-        fig4.update_traces(
-            texttemplate='%{text:.2f}%',
-            textposition='outside'
-        )
+        fig4.update_traces(texttemplate='%{text:.2f}%', textposition='outside')
         fig4.update_layout(
-            plot_bgcolor=bg_color,
-            paper_bgcolor=bg_color,
-            showlegend=False,
-            margin=dict(t=20,b=20,l=10,r=10),
+            plot_bgcolor=bg_color, paper_bgcolor=bg_color,
+            showlegend=False, margin=dict(t=20,b=20,l=10,r=10),
             xaxis_title="", yaxis_title="Conversion Rate %"
         )
         st.plotly_chart(fig4, use_container_width=True)
 
-    # ── Best Month ──
+    # ── Insight Cards ──
     st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
-    best_month     = client_df.groupby('Month')['ROI'].mean().idxmax()
-    best_platform  = client_df.groupby('Channel_Used')['ROI'].mean().idxmax()
-    best_goal      = client_df.groupby('Campaign_Goal')['ROI'].mean().idxmax()
-    best_segment   = client_df.groupby('Customer_Segment')['Conversion_Rate'].mean().idxmax()
+    best_month    = client_df.groupby('Month')['ROI'].mean().idxmax()
+    best_platform = client_df.groupby('Channel_Used')['ROI'].mean().idxmax()
+    best_goal     = client_df.groupby('Campaign_Goal')['ROI'].mean().idxmax()
+    best_segment  = client_df.groupby('Customer_Segment')['Conversion_Rate'].mean().idxmax()
 
-    col_a, col_b, col_c, col_d = st.columns(4)
-    with col_a:
-        st.markdown(f"""
-        <div style='background:{card_bg}; border:1px solid {border};
-                    border-radius:12px; padding:16px; text-align:center;'>
-            <p style='color:{subtext}; font-size:0.68rem; text-transform:uppercase;
-                      letter-spacing:1.5px; margin:0 0 6px 0;'>Best Platform</p>
-            <p style='color:{accent}; font-size:1.1rem; font-weight:800;
-                      font-family:Syne,sans-serif; margin:0;'>📱 {best_platform}</p>
-        </div>
-        """, unsafe_allow_html=True)
-    with col_b:
-        st.markdown(f"""
-        <div style='background:{card_bg}; border:1px solid {border};
-                    border-radius:12px; padding:16px; text-align:center;'>
-            <p style='color:{subtext}; font-size:0.68rem; text-transform:uppercase;
-                      letter-spacing:1.5px; margin:0 0 6px 0;'>Best Goal</p>
-            <p style='color:{accent}; font-size:1.1rem; font-weight:800;
-                      font-family:Syne,sans-serif; margin:0;'>🎯 {best_goal}</p>
-        </div>
-        """, unsafe_allow_html=True)
-    with col_c:
-        st.markdown(f"""
-        <div style='background:{card_bg}; border:1px solid {border};
-                    border-radius:12px; padding:16px; text-align:center;'>
-            <p style='color:{subtext}; font-size:0.68rem; text-transform:uppercase;
-                      letter-spacing:1.5px; margin:0 0 6px 0;'>Best Month</p>
-            <p style='color:{accent}; font-size:1.1rem; font-weight:800;
-                      font-family:Syne,sans-serif; margin:0;'>📅 Month {best_month}</p>
-        </div>
-        """, unsafe_allow_html=True)
-    with col_d:
-        st.markdown(f"""
-        <div style='background:{card_bg}; border:1px solid {border};
-                    border-radius:12px; padding:16px; text-align:center;'>
-            <p style='color:{subtext}; font-size:0.68rem; text-transform:uppercase;
-                      letter-spacing:1.5px; margin:0 0 6px 0;'>Best Segment</p>
-            <p style='color:{accent}; font-size:1.1rem; font-weight:800;
-                      font-family:Syne,sans-serif; margin:0;'>👥 {best_segment}</p>
-        </div>
-        """, unsafe_allow_html=True)
+    insights = [
+        ("📱 Platform", best_platform),
+        ("🎯 Goal",     best_goal),
+        ("📅 Month",    f"Month {best_month}"),
+        ("👥 Segment",  best_segment),
+    ]
+
+    cols = st.columns(4)
+    for col, (label, value) in zip(cols, insights):
+        with col:
+            st.markdown(f"""
+            <div style='background:{card_bg}; border:1px solid {border};
+                        border-radius:12px; padding:16px; text-align:center;'>
+                <p style='color:{subtext}; font-size:0.68rem; text-transform:uppercase;
+                          letter-spacing:1.5px; margin:0 0 6px 0;'>Best {label}</p>
+                <p style='color:{accent}; font-size:1.0rem; font-weight:800;
+                          font-family:Syne,sans-serif; margin:0;'>{value}</p>
+            </div>
+            """, unsafe_allow_html=True)
 
     # ── PDF Report ──
     st.markdown("<div style='height:24px'></div>", unsafe_allow_html=True)
-    st.markdown(f"<hr style='border-color:rgba(0,180,180,0.2);'>", unsafe_allow_html=True)
+    st.markdown(f"<hr style='border-color:{border};'>", unsafe_allow_html=True)
 
     col_btn, col_info = st.columns([1, 3])
     with col_btn:
