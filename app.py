@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import os
+import base64
 
 # ==============================
 # Page Config — أول سطر دايماً
@@ -46,8 +47,32 @@ else:
     SIDEBAR_BG = "#E8EFF5"
 
 # ==============================
+# Background Image Style
+# ==============================
+bg_style = ""
+if 'bg_image' in st.session_state:
+    bg_style = f"""
+    .stApp {{
+        background-image: url("{st.session_state['bg_image']}") !important;
+        background-size: cover !important;
+        background-position: center !important;
+        background-attachment: fixed !important;
+    }}
+    .stApp::after {{
+        content: '';
+        position: fixed;
+        inset: 0;
+        background: rgba(6, 11, 20, 0.82);
+        pointer-events: none;
+        z-index: 0;
+    }}
+    """
+
+# ==============================
 # Dynamic CSS
 # ==============================
+st.markdown(f"<style>{bg_style}</style>", unsafe_allow_html=True)
+
 st.markdown(f"""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap');
@@ -201,6 +226,9 @@ TRANSLATIONS = {
         "active_clients": "Active Clients",
         "owner": "Founder & CEO",
         "follow_us": "Follow Us",
+        "bg_image": "Background Image",
+        "reset_bg": "🗑️ Reset Background",
+        "bg_updated": "✅ Background updated!",
     },
     "ar": {
         "dashboard_title": "منصة 3M4Media الذكية",
@@ -233,6 +261,9 @@ TRANSLATIONS = {
         "active_clients": "العملاء النشطين",
         "owner": "المؤسس والرئيس التنفيذي",
         "follow_us": "تابعنا",
+        "bg_image": "صورة الخلفية",
+        "reset_bg": "🗑️ إزالة الخلفية",
+        "bg_updated": "✅ تم تحديث الخلفية!",
     }
 }
 
@@ -265,9 +296,9 @@ with st.sidebar:
     else:
         st.markdown(f"""
         <div style='text-align:center; padding:16px 0;'>
-            <span style='font-family:Syne,sans-serif; font-size:2rem; 
+            <span style='font-family:Syne,sans-serif; font-size:2rem;
                          font-weight:800; color:{ACCENT};'>3M</span>
-            <span style='font-family:Syne,sans-serif; font-size:1rem; 
+            <span style='font-family:Syne,sans-serif; font-size:1rem;
                          color:{SUBTEXT}; display:block; letter-spacing:4px;'>MEDIA</span>
         </div>
         """, unsafe_allow_html=True)
@@ -300,6 +331,30 @@ with st.sidebar:
             st.session_state['theme'] = 'light'
             st.rerun()
 
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    # Background Image Upload
+    st.markdown(f"<p style='color:{SUBTEXT}; font-size:0.72rem; text-transform:uppercase; letter-spacing:2px; margin-bottom:4px;'>🖼️ {t('bg_image')}</p>", unsafe_allow_html=True)
+
+    bg_image = st.file_uploader(
+        "",
+        type=['png', 'jpg', 'jpeg', 'webp'],
+        label_visibility="collapsed",
+        key="bg_uploader"
+    )
+
+    if bg_image is not None:
+        bg_bytes = bg_image.read()
+        bg_b64 = base64.b64encode(bg_bytes).decode()
+        ext = bg_image.name.split('.')[-1]
+        st.session_state['bg_image'] = f"data:image/{ext};base64,{bg_b64}"
+        st.success(t("bg_updated"))
+
+    if 'bg_image' in st.session_state:
+        if st.button(t("reset_bg"), use_container_width=True):
+            st.session_state.pop('bg_image', None)
+            st.rerun()
+
     st.markdown("<hr>", unsafe_allow_html=True)
 
     # Navigation
@@ -319,14 +374,14 @@ with st.sidebar:
 
     # Live Stats
     st.markdown(f"""
-    <div style='background:{CARD}; border:1px solid {BORDER}; 
-                border-radius:12px; padding:16px; margin-bottom:16px;'>
-        <p style='color:{SUBTEXT}; font-size:0.7rem; text-transform:uppercase; 
+    <div style='background:{CARD}; border:1px solid {BORDER};
+                border-radius:12px; padding:16px; margin-bottom:12px;'>
+        <p style='color:{SUBTEXT}; font-size:0.7rem; text-transform:uppercase;
                   letter-spacing:2px; margin:0 0 10px 0;'>📡 {t('live_stats')}</p>
-        <p style='color:{ACCENT}; font-size:1.4rem; font-weight:800; 
+        <p style='color:{ACCENT}; font-size:1.4rem; font-weight:800;
                   font-family:Syne,sans-serif; margin:0;'>{df.shape[0]:,}</p>
         <p style='color:{SUBTEXT}; font-size:0.72rem; margin:0 0 10px 0;'>{t('total_records')}</p>
-        <p style='color:{ACCENT}; font-size:1.4rem; font-weight:800; 
+        <p style='color:{ACCENT}; font-size:1.4rem; font-weight:800;
                   font-family:Syne,sans-serif; margin:0;'>{df['Company'].nunique()}</p>
         <p style='color:{SUBTEXT}; font-size:0.72rem; margin:0;'>{t('active_clients')}</p>
     </div>
@@ -334,38 +389,44 @@ with st.sidebar:
 
     # Owner Card
     st.markdown(f"""
-    <div style='background:{CARD}; border:1px solid {BORDER}; 
+    <div style='background:{CARD}; border:1px solid {BORDER};
                 border-radius:12px; padding:14px; margin-bottom:12px;'>
-        <p style='color:{SUBTEXT}; font-size:0.68rem; text-transform:uppercase; 
+        <p style='color:{SUBTEXT}; font-size:0.68rem; text-transform:uppercase;
                   letter-spacing:2px; margin:0 0 6px 0;'>👤 {t('owner')}</p>
-        <p style='color:{TEXT}; font-size:0.9rem; font-weight:700; 
+        <p style='color:{TEXT}; font-size:0.9rem; font-weight:700;
                   font-family:Syne,sans-serif; margin:0;'>Eng. Issa Mkhaimer</p>
     </div>
     """, unsafe_allow_html=True)
 
     # Social Links
     st.markdown(f"""
-    <div style='background:{CARD}; border:1px solid {BORDER}; 
+    <div style='background:{CARD}; border:1px solid {BORDER};
                 border-radius:12px; padding:14px;'>
-        <p style='color:{SUBTEXT}; font-size:0.68rem; text-transform:uppercase; 
+        <p style='color:{SUBTEXT}; font-size:0.68rem; text-transform:uppercase;
                   letter-spacing:2px; margin:0 0 10px 0;'>🔗 {t('follow_us')}</p>
-        <a href='https://www.instagram.com/3essa.official?igsh=MXF1amV2Mm5uMXE0NQ==' 
+        <a href='https://www.instagram.com/3essa.official?igsh=MXF1amV2Mm5uMXE0NQ=='
            target='_blank'
            style='display:flex; align-items:center; gap:8px; text-decoration:none;
-                  color:{TEXT}; padding:6px 8px; border-radius:8px;
+                  color:{TEXT}; padding:8px 10px; border-radius:8px;
                   background:rgba(255,255,255,0.03); margin-bottom:6px;
-                  border:1px solid rgba(255,255,255,0.06);'>
-            <span style='font-size:1rem;'>📸</span>
-            <span style='font-size:0.8rem;'>@3essa.official</span>
+                  border:1px solid rgba(255,255,255,0.06); transition:all 0.2s;'>
+            <span style='font-size:1.1rem;'>📸</span>
+            <div>
+                <p style='margin:0; font-size:0.78rem; font-weight:600;'>Eng. Issa Mkhaimer</p>
+                <p style='margin:0; font-size:0.68rem; color:{SUBTEXT};'>@3essa.official</p>
+            </div>
         </a>
-        <a href='https://www.instagram.com/3m4media?igsh=MThtODI3a2FzMXN0Yw==' 
+        <a href='https://www.instagram.com/3m4media?igsh=MThtODI3a2FzMXN0Yw=='
            target='_blank'
            style='display:flex; align-items:center; gap:8px; text-decoration:none;
-                  color:{ACCENT}; padding:6px 8px; border-radius:8px;
-                  background:rgba(0,180,180,0.06); 
-                  border:1px solid rgba(0,180,180,0.2);'>
-            <span style='font-size:1rem;'>📸</span>
-            <span style='font-size:0.8rem; font-weight:700;'>@3m4media</span>
+                  color:{ACCENT}; padding:8px 10px; border-radius:8px;
+                  background:rgba(0,180,180,0.06);
+                  border:1px solid rgba(0,180,180,0.2); transition:all 0.2s;'>
+            <span style='font-size:1.1rem;'>📸</span>
+            <div>
+                <p style='margin:0; font-size:0.78rem; font-weight:700;'>3M4Media</p>
+                <p style='margin:0; font-size:0.68rem; color:{SUBTEXT};'>@3m4media</p>
+            </div>
         </a>
     </div>
     """, unsafe_allow_html=True)
@@ -374,7 +435,8 @@ with st.sidebar:
     st.markdown(f"""
     <div style='text-align:center;'>
         <p style='color:{SUBTEXT}; font-size:0.65rem; margin:0;'>Promote Your Dreams ⭐</p>
-        <p style='color:{ACCENT}; font-size:0.7rem; font-weight:700; margin:2px 0 0 0;'>www.3m4media.com</p>
+        <p style='color:{ACCENT}; font-size:0.75rem; font-weight:700;
+                  font-family:Syne,sans-serif; margin:2px 0 0 0;'>www.3m4media.com</p>
     </div>
     """, unsafe_allow_html=True)
 
