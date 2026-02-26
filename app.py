@@ -90,12 +90,16 @@ h1, h2, h3, h4 {{ font-family: 'Syne', sans-serif !important; }}
 #MainMenu, footer, header {{ visibility: hidden; }}
 .block-container {{ padding-top: 1.2rem !important; padding-bottom: 2rem !important; }}
 
+/* ══════════════════════════════════════
+   🎨 3M4Media Core Style (ملف CSS بتاعك)
+   ══════════════════════════════════════ */
+
 /* ── Background ── */
 {bg_css}
 
 .stApp {{
-    background-color: {BG} !important;
-    color: {TEXT} !important;
+    background-color: #0A0F1E !important;
+    color: #FFFFFF !important;
     transition: all 0.5s ease;
     {"background: linear-gradient(135deg,#060B14 0%,#0A0F1E 60%,#060B14 100%) !important;"
      if theme=="dark" and "bg_image" not in st.session_state else ""}
@@ -119,33 +123,158 @@ h1, h2, h3, h4 {{ font-family: 'Syne', sans-serif !important; }}
     100% {{ transform: translateX(100%); }}
 }}
 
-/* ── Glass Main Content ── */
+/* ── Main Content ── */
 .block-container {{
     background: {GLASS_MAIN} !important;
     backdrop-filter: blur(18px) !important;
     -webkit-backdrop-filter: blur(18px) !important;
     border-radius: 20px !important;
-    border: 1px solid {BORDER} !important;
+    border: 1px solid #00B4B4 !important;
     padding: 28px 32px !important;
     transition: all 0.4s ease;
 }}
 
-/* ── Glass Sidebar ── */
+/* ── Sidebar ── */
 [data-testid="stSidebar"] {{
-    background: {GLASS_SIDE} !important;
-    backdrop-filter: blur(24px) !important;
-    -webkit-backdrop-filter: blur(24px) !important;
-    border-right: 1px solid {BORDER} !important;
-    transition: transform 0.35s cubic-bezier(0.4,0,0.2,1),
-                opacity   0.35s ease,
-                box-shadow 0.35s ease !important;
+    background-color: #060B14 !important;
+    border-right: 1px solid #00B4B4 !important;
+    transition: transform 0.35s cubic-bezier(0.4,0,0.2,1) !important;
 }}
-[data-testid="stSidebar"] * {{ color: {TEXT} !important; }}
-[data-testid="stSidebar"] a {{ text-decoration: none !important; }}
+[data-testid="stSidebar"] * {{ color: #FFFFFF !important; }}
+[data-testid="stSidebar"] a  {{ text-decoration: none !important; }}
 
-/* Sidebar مفتوح ← shadow درامي */
-[data-testid="stSidebar"][aria-expanded="true"] {{
-    box-shadow: 8px 0 48px rgba(0,0,0,0.5) !important;
+/* ── KPI Cards ── */
+[data-testid="metric-container"] {{
+    background: linear-gradient(135deg, #0D1B2A, #1A2F4A) !important;
+    border: 1px solid #00B4B4 !important;
+    border-radius: 12px !important;
+    padding: 16px !important;
+    box-shadow: 0 4px 15px rgba(0,180,180,0.15) !important;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.35s ease;
+}}
+[data-testid="metric-container"]:hover {{
+    transform: translateY(-4px) !important;
+    box-shadow: 0 12px 30px rgba(0,180,180,0.25) !important;
+}}
+[data-testid="stMetricValue"] {{
+    color: #00B4B4 !important;
+    font-family: 'Syne', sans-serif !important;
+    font-size: 1.8rem !important;
+    font-weight: 700 !important;
+}}
+[data-testid="stMetricLabel"] {{
+    color: #A0AEC0 !important;
+    font-size: 0.85rem !important;
+    text-transform: uppercase !important;
+    letter-spacing: 1.5px !important;
+}}
+
+/* ── Headers ── */
+h1 {{
+    color: #FFFFFF !important;
+    font-size: 2rem !important;
+    font-weight: 700 !important;
+    border-bottom: 2px solid #00B4B4;
+    padding-bottom: 10px;
+}}
+h2, h3 {{
+    color: #00B4B4 !important;
+    font-weight: 600 !important;
+}}
+
+/* ── Buttons ── */
+.stButton > button {{
+    background: linear-gradient(135deg, #00B4B4, #007A7A) !important;
+    color: #FFFFFF !important;
+    border: none !important;
+    border-radius: 8px !important;
+    padding: 10px 24px !important;
+    font-family: 'Syne', sans-serif !important;
+    font-weight: 600 !important;
+    font-size: 0.95rem !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 4px 15px rgba(0,180,180,0.3) !important;
+}}
+.stButton > button:hover {{
+    background: linear-gradient(135deg, #007A7A, #005555) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 20px rgba(0,180,180,0.4) !important;
+}}
+
+/* ── Selectbox & Radio ── */
+[data-testid="stSelectbox"],
+[data-testid="stRadio"] {{
+    background-color: #0D1B2A !important;
+    border-radius: 8px !important;
+}}
+[data-testid="stSelectbox"] > div > div {{
+    background-color: #0D1B2A !important;
+    border: 1px solid #00B4B4 !important;
+    border-radius: 8px !important;
+    color: #FFFFFF !important;
+}}
+
+/* ── Charts ── */
+.js-plotly-plot {{
+    background: rgba(13,27,42,0.8) !important;
+    border: 1px solid #00B4B4 !important;
+    border-radius: 12px !important;
+    overflow: hidden !important;
+}}
+.js-plotly-plot:hover {{
+    border-color: #00D4D4 !important;
+    box-shadow: 0 8px 32px rgba(0,180,180,0.2) !important;
+}}
+
+/* ── Divider ── */
+hr {{ border-color: #00B4B4 !important; opacity: 0.3 !important; }}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar {{ width: 4px; height: 4px; }}
+::-webkit-scrollbar-track {{ background: #060B14; }}
+::-webkit-scrollbar-thumb {{ background: #00B4B4; border-radius: 4px; }}
+
+/* ── File Uploader ── */
+[data-testid="stFileUploader"] {{
+    background-color: #0D1B2A !important;
+    border: 2px dashed #00B4B4 !important;
+    border-radius: 12px !important;
+    padding: 20px !important;
+    transition: all 0.3s ease;
+}}
+[data-testid="stFileUploader"]:hover {{
+    background-color: rgba(0,180,180,0.08) !important;
+}}
+
+/* ── Success / Info ── */
+.stSuccess {{
+    background-color: rgba(0,180,180,0.1) !important;
+    border-left: 4px solid #00B4B4 !important;
+    border-radius: 8px !important;
+}}
+.stInfo {{
+    background-color: rgba(0,100,180,0.1) !important;
+    border-left: 4px solid #0064B4 !important;
+    border-radius: 8px !important;
+}}
+
+/* ── Dataframe ── */
+[data-testid="stDataFrame"] {{
+    border: 1px solid #00B4B4 !important;
+    border-radius: 8px !important;
+}}
+
+/* ── Logo in sidebar ── */
+[data-testid="stSidebar"] img {{
+    border-radius: 12px !important;
+    border: 2px solid #00B4B4 !important;
+    padding: 4px !important;
+    transition: all 0.3s;
+}}
+[data-testid="stSidebar"] img:hover {{
+    box-shadow: 0 0 20px rgba(0,180,180,0.4) !important;
 }}
 
 /* ── KPI Cards ── */
