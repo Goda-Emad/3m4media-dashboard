@@ -538,14 +538,13 @@ with st.sidebar:
         <p style='color:{SUBTEXT}; font-size:0.66rem; text-transform:uppercase;
                   letter-spacing:2px; margin:0 0 10px 0;'>🔗 {t('follow_us')}</p>
 
-        <a href='https://www.instagram.com/3essa.official?igsh=MXF1amV2Mm5uMXE0NQ=='
+        <a href='https://www.instagram.com/3essa.official'
            target='_blank'
            style='display:flex; align-items:center; gap:10px; text-decoration:none;
                   padding:8px 10px; border-radius:10px; margin-bottom:8px;
                   background:rgba(255,255,255,0.04);
-                  border:1px solid rgba(255,255,255,0.08);
-                  transition:all 0.2s ease;'>
-            <span style='font-size:1.2rem;'>📸</span>
+                  border:1px solid rgba(255,255,255,0.08);'>
+            <span style='font-size:1.2rem;'>&#128248;</span>
             <div>
                 <p style='margin:0; font-size:0.80rem; font-weight:700;
                           color:{TEXT};'>Eng. Issa Mkhaimer</p>
@@ -554,14 +553,13 @@ with st.sidebar:
             </div>
         </a>
 
-        <a href='https://www.instagram.com/3m4media?igsh=MThtODI3a2FzMXN0Yw=='
+        <a href='https://www.instagram.com/3m4media'
            target='_blank'
            style='display:flex; align-items:center; gap:10px; text-decoration:none;
                   padding:8px 10px; border-radius:10px;
                   background:rgba(0,180,180,0.07);
-                  border:1px solid rgba(0,180,180,0.22);
-                  transition:all 0.2s ease;'>
-            <span style='font-size:1.2rem;'>📸</span>
+                  border:1px solid rgba(0,180,180,0.22);'>
+            <span style='font-size:1.2rem;'>&#128248;</span>
             <div>
                 <p style='margin:0; font-size:0.80rem; font-weight:700;
                           color:{ACCENT};'>3M4Media</p>
@@ -571,21 +569,6 @@ with st.sidebar:
         </a>
     </div>
     """, unsafe_allow_html=True)
-
-    st.markdown("<div style='height:14px'></div>", unsafe_allow_html=True)
-
-    st.markdown(f"""
-    <div style='text-align:center; padding:8px 0;'>
-        <p style='color:{SUBTEXT}; font-size:0.62rem; margin:0; letter-spacing:1px;'>
-            PROMOTE YOUR DREAMS ⭐
-        </p>
-        <p style='color:{ACCENT}; font-size:0.72rem; font-weight:700;
-                  font-family:Syne,sans-serif; margin:3px 0 0 0;'>
-            www.3m4media.com
-        </p>
-    </div>
-    """, unsafe_allow_html=True)
-
 # ==============================
 # Active Data
 # ==============================
