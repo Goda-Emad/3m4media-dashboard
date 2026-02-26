@@ -51,11 +51,18 @@ def show_overview(df, lang="en", theme="dark"):
     """, unsafe_allow_html=True)
 
     # ── KPIs ──
+    # تنسيق الأرقام عشان ما تتقطعش على الموبايل
+    def fmt_num(n):
+        if n >= 1_000_000_000: return f"{n/1_000_000_000:.1f}B"
+        if n >= 1_000_000:     return f"{n/1_000_000:.1f}M"
+        if n >= 1_000:         return f"{n/1_000:.1f}K"
+        return f"{n:,}"
+
     col1, col2, col3, col4 = st.columns(4)
     with col1:
-        st.metric(t("total_clicks"),      f"{df['Clicks'].sum():,}")
+        st.metric(t("total_clicks"),      fmt_num(df['Clicks'].sum()))
     with col2:
-        st.metric(t("total_impressions"), f"{df['Impressions'].sum():,}")
+        st.metric(t("total_impressions"), fmt_num(df['Impressions'].sum()))
     with col3:
         st.metric(t("avg_roi"),           f"{df['ROI'].mean():.2f}x")
     with col4:
