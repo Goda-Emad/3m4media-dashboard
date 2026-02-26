@@ -9,7 +9,6 @@ from modules.translator import get_text
 
 def show_ai_insights(df, lang="en", theme="dark"):
 
-    # ── Theme Settings ──
     template   = "plotly_dark"   if theme == "dark" else "plotly_white"
     bg_color   = "rgba(0,0,0,0)" if theme == "dark" else "rgba(255,255,255,0.6)"
     accent     = "#00B4B4"       if theme == "dark" else "#006B6B"
@@ -19,6 +18,24 @@ def show_ai_insights(df, lang="en", theme="dark"):
     border     = "rgba(0,180,180,0.2)"  if theme == "dark" else "rgba(0,120,120,0.2)"
 
     t = lambda key: get_text(key, lang)
+
+    # ── Mobile CSS ──
+    st.markdown("""
+    <style>
+    @media screen and (max-width: 768px) {
+        /* Summary stats: 3 cols max on mobile */
+        .summary-stats-row [data-testid="column"] {
+            min-width: calc(33.33% - 6px) !important;
+            flex: 0 0 calc(33.33% - 6px) !important;
+        }
+        /* Forecast panel stack under chart */
+        .forecast-row [data-testid="column"]:last-child {
+            min-width: 100% !important;
+            flex: 0 0 100% !important;
+        }
+    }
+    </style>
+    """, unsafe_allow_html=True)
 
     # ── Page Banner ──
     st.markdown(f"""
@@ -113,8 +130,7 @@ def show_ai_insights(df, lang="en", theme="dark"):
                                   font-family:Syne,sans-serif; margin:0 0 4px 0;'>
                             {rec["title"]}
                         </p>
-                        <p style='color:{subtext}; font-size:0.76rem;
-                                  margin:0; line-height:1.5;'>
+                        <p style='color:{subtext}; font-size:0.76rem; margin:0; line-height:1.5;'>
                             {rec["desc"]}
                         </p>
                     </div>
@@ -127,8 +143,7 @@ def show_ai_insights(df, lang="en", theme="dark"):
     # ══════════════════════════════════════
     # SECTION 2 — ROI Trend + Prediction
     # ══════════════════════════════════════
-    st.markdown(f"<hr style='border-color:{border}; opacity:0.5;'>",
-                unsafe_allow_html=True)
+    st.markdown(f"<hr style='border-color:{border}; opacity:0.5;'>", unsafe_allow_html=True)
     st.markdown(f"""
     <p style='color:{accent}; font-size:0.75rem; text-transform:uppercase;
               letter-spacing:2px; font-weight:700; margin-bottom:12px;'>
@@ -137,7 +152,6 @@ def show_ai_insights(df, lang="en", theme="dark"):
     """, unsafe_allow_html=True)
 
     monthly = df.groupby('Month')['ROI'].mean().reset_index()
-
     last_month  = int(monthly['Month'].max())
     last_roi    = float(monthly['ROI'].iloc[-1])
     growth_rate = 0.05
@@ -149,53 +163,37 @@ def show_ai_insights(df, lang="en", theme="dark"):
         round(last_roi * (1 + growth_rate) ** 3, 2),
     ]
 
+    # على الموبايل: Chart فوق والـ forecast تحت
     col_chart, col_info = st.columns([3, 1])
 
     with col_chart:
         fig = go.Figure()
-
         fig.add_trace(go.Scatter(
             x=monthly['Month'], y=monthly['ROI'],
-            mode='lines+markers',
-            name='Actual ROI',
+            mode='lines+markers', name='Actual ROI',
             line=dict(color=accent, width=3),
-            marker=dict(size=8, color=accent,
-                       line=dict(width=2, color='white')),
-            fill='tozeroy',
-            fillcolor='rgba(0,180,180,0.08)'
+            marker=dict(size=8, color=accent, line=dict(width=2, color='white')),
+            fill='tozeroy', fillcolor='rgba(0,180,180,0.08)'
         ))
-
         fig.add_trace(go.Scatter(
             x=[last_month] + pred_months,
             y=[last_roi]   + pred_rois,
-            mode='lines+markers',
-            name='Predicted ROI',
+            mode='lines+markers', name='Predicted ROI',
             line=dict(color='#FF6B6B', width=3, dash='dot'),
             marker=dict(size=10, color='#FF6B6B', symbol='star',
                        line=dict(width=2, color='white'))
         ))
-
         fig.add_vrect(
             x0=last_month, x1=last_month + 3,
-            fillcolor="rgba(255,107,107,0.05)",
-            line_width=0,
-            annotation_text="Predicted",
-            annotation_position="top left",
+            fillcolor="rgba(255,107,107,0.05)", line_width=0,
+            annotation_text="Predicted", annotation_position="top left",
             annotation_font_color="#FF6B6B"
         )
-
         fig.update_layout(
-            template=template,
-            plot_bgcolor=bg_color,
-            paper_bgcolor=bg_color,
-            margin=dict(t=30, b=20, l=10, r=10),
-            xaxis_title="Month",
-            yaxis_title="Average ROI",
-            legend=dict(
-                orientation="h",
-                yanchor="bottom", y=1.02,
-                xanchor="right",  x=1
-            )
+            template=template, plot_bgcolor=bg_color, paper_bgcolor=bg_color,
+            margin=dict(t=30,b=20,l=10,r=10),
+            xaxis_title="Month", yaxis_title="Average ROI",
+            legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
         )
         st.plotly_chart(fig, use_container_width=True)
 
@@ -204,34 +202,18 @@ def show_ai_insights(df, lang="en", theme="dark"):
         <div style='background:{card_bg}; border:1px solid {border};
                     border-radius:14px; padding:18px;'>
             <p style='color:{subtext}; font-size:0.68rem; text-transform:uppercase;
-                      letter-spacing:1.5px; margin:0 0 14px 0;'>
-                &#128200; Forecast
-            </p>
-            <p style='color:{subtext}; font-size:0.70rem; margin:0 0 4px 0;'>
-                Month {pred_months[0]}
-            </p>
+                      letter-spacing:1.5px; margin:0 0 14px 0;'>&#128200; Forecast</p>
+            <p style='color:{subtext}; font-size:0.70rem; margin:0 0 4px 0;'>Month {pred_months[0]}</p>
             <p style='color:{accent}; font-size:1.2rem; font-weight:800;
-                      font-family:Syne,sans-serif; margin:0 0 12px 0;'>
-                {pred_rois[0]}x
-            </p>
-            <p style='color:{subtext}; font-size:0.70rem; margin:0 0 4px 0;'>
-                Month {pred_months[1]}
-            </p>
+                      font-family:Syne,sans-serif; margin:0 0 12px 0;'>{pred_rois[0]}x</p>
+            <p style='color:{subtext}; font-size:0.70rem; margin:0 0 4px 0;'>Month {pred_months[1]}</p>
             <p style='color:{accent}; font-size:1.2rem; font-weight:800;
-                      font-family:Syne,sans-serif; margin:0 0 12px 0;'>
-                {pred_rois[1]}x
-            </p>
-            <p style='color:{subtext}; font-size:0.70rem; margin:0 0 4px 0;'>
-                Month {pred_months[2]}
-            </p>
+                      font-family:Syne,sans-serif; margin:0 0 12px 0;'>{pred_rois[1]}x</p>
+            <p style='color:{subtext}; font-size:0.70rem; margin:0 0 4px 0;'>Month {pred_months[2]}</p>
             <p style='color:{accent}; font-size:1.2rem; font-weight:800;
-                      font-family:Syne,sans-serif; margin:0 0 16px 0;'>
-                {pred_rois[2]}x
-            </p>
-            <div style='background:rgba(0,180,180,0.08);
-                        border-radius:8px; padding:10px;'>
-                <p style='color:{accent}; font-size:0.70rem;
-                          margin:0; text-align:center;'>
+                      font-family:Syne,sans-serif; margin:0 0 16px 0;'>{pred_rois[2]}x</p>
+            <div style='background:rgba(0,180,180,0.08); border-radius:8px; padding:10px;'>
+                <p style='color:{accent}; font-size:0.70rem; margin:0; text-align:center;'>
                     +5% growth/month
                 </p>
             </div>
@@ -242,8 +224,7 @@ def show_ai_insights(df, lang="en", theme="dark"):
     # SECTION 3 — Feature Importance
     # ══════════════════════════════════════
     if model_loaded:
-        st.markdown(f"<hr style='border-color:{border}; opacity:0.5;'>",
-                    unsafe_allow_html=True)
+        st.markdown(f"<hr style='border-color:{border}; opacity:0.5;'>", unsafe_allow_html=True)
         st.markdown(f"""
         <p style='color:{accent}; font-size:0.75rem; text-transform:uppercase;
                   letter-spacing:2px; font-weight:700; margin-bottom:12px;'>
@@ -257,34 +238,25 @@ def show_ai_insights(df, lang="en", theme="dark"):
         }).sort_values('Importance', ascending=True).tail(10)
 
         fig2 = px.bar(
-            importance_df,
-            x='Importance', y='Feature',
+            importance_df, x='Importance', y='Feature',
             orientation='h',
             color='Importance',
             color_continuous_scale=[[0,'#003333'],[1,'#00B4B4']],
-            template=template,
-            text='Importance'
+            template=template, text='Importance'
         )
-        fig2.update_traces(
-            texttemplate='%{text:.3f}',
-            textposition='outside'
-        )
+        fig2.update_traces(texttemplate='%{text:.3f}', textposition='outside')
         fig2.update_layout(
-            plot_bgcolor=bg_color,
-            paper_bgcolor=bg_color,
-            margin=dict(t=20, b=20, l=10, r=60),
-            showlegend=False,
-            coloraxis_showscale=False,
-            xaxis_title="Importance Score",
-            yaxis_title=""
+            plot_bgcolor=bg_color, paper_bgcolor=bg_color,
+            margin=dict(t=20,b=20,l=10,r=60),
+            showlegend=False, coloraxis_showscale=False,
+            xaxis_title="Importance Score", yaxis_title=""
         )
         st.plotly_chart(fig2, use_container_width=True)
 
     # ══════════════════════════════════════
     # SECTION 4 — Platform Deep Dive
     # ══════════════════════════════════════
-    st.markdown(f"<hr style='border-color:{border}; opacity:0.5;'>",
-                unsafe_allow_html=True)
+    st.markdown(f"<hr style='border-color:{border}; opacity:0.5;'>", unsafe_allow_html=True)
     st.markdown(f"""
     <p style='color:{accent}; font-size:0.75rem; text-transform:uppercase;
               letter-spacing:2px; font-weight:700; margin-bottom:12px;'>
@@ -296,27 +268,19 @@ def show_ai_insights(df, lang="en", theme="dark"):
 
     with col1:
         platform_scatter = df.groupby('Channel_Used').agg(
-            ROI=('ROI','mean'),
-            CTR=('CTR','mean'),
-            Clicks=('Clicks','sum'),
+            ROI=('ROI','mean'), CTR=('CTR','mean'), Clicks=('Clicks','sum'),
         ).reset_index()
 
         fig3 = px.scatter(
-            platform_scatter,
-            x='CTR', y='ROI',
-            size='Clicks',
-            color='Channel_Used',
-            text='Channel_Used',
+            platform_scatter, x='CTR', y='ROI',
+            size='Clicks', color='Channel_Used', text='Channel_Used',
             color_discrete_sequence=['#00B4B4','#7B2FBE','#FF6B6B','#51CF66'],
-            template=template,
-            title="ROI vs CTR by Platform"
+            template=template, title="ROI vs CTR by Platform"
         )
         fig3.update_traces(textposition='top center')
         fig3.update_layout(
-            plot_bgcolor=bg_color,
-            paper_bgcolor=bg_color,
-            margin=dict(t=40, b=20, l=10, r=10),
-            showlegend=False
+            plot_bgcolor=bg_color, paper_bgcolor=bg_color,
+            margin=dict(t=40,b=20,l=10,r=10), showlegend=False
         )
         st.plotly_chart(fig3, use_container_width=True)
 
@@ -328,34 +292,25 @@ def show_ai_insights(df, lang="en", theme="dark"):
         goal_conv['Conversion'] = (goal_conv['Conversion'] * 100).round(2)
 
         fig4 = px.bar(
-            goal_conv,
-            x='Campaign_Goal', y='Conversion',
+            goal_conv, x='Campaign_Goal', y='Conversion',
             color='ROI',
             color_continuous_scale=[[0,'#003333'],[1,'#00B4B4']],
-            template=template,
-            text='Conversion',
+            template=template, text='Conversion',
             title="Conversion Rate by Campaign Goal"
         )
-        fig4.update_traces(
-            texttemplate='%{text:.2f}%',
-            textposition='outside'
-        )
+        fig4.update_traces(texttemplate='%{text:.2f}%', textposition='outside')
         fig4.update_layout(
-            plot_bgcolor=bg_color,
-            paper_bgcolor=bg_color,
-            margin=dict(t=40, b=20, l=10, r=10),
-            showlegend=False,
-            coloraxis_showscale=False,
-            xaxis_title="",
-            yaxis_title="Conversion Rate %"
+            plot_bgcolor=bg_color, paper_bgcolor=bg_color,
+            margin=dict(t=40,b=20,l=10,r=10),
+            showlegend=False, coloraxis_showscale=False,
+            xaxis_title="", yaxis_title="Conversion Rate %"
         )
         st.plotly_chart(fig4, use_container_width=True)
 
     # ══════════════════════════════════════
     # SECTION 5 — Summary Stats
     # ══════════════════════════════════════
-    st.markdown(f"<hr style='border-color:{border}; opacity:0.5;'>",
-                unsafe_allow_html=True)
+    st.markdown(f"<hr style='border-color:{border}; opacity:0.5;'>", unsafe_allow_html=True)
     st.markdown(f"""
     <p style='color:{accent}; font-size:0.75rem; text-transform:uppercase;
               letter-spacing:2px; font-weight:700; margin-bottom:16px;'>
