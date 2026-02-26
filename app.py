@@ -1,26 +1,15 @@
 import streamlit as st
 import pandas as pd
 import os
-import base64
 
 # ==============================
-# Page Config — أول سطر دايماً
+# Page Config
 # ==============================
-# التحقق من query parameters قبل set_page_config
-query_params = st.query_params if hasattr(st, 'query_params') else {}
-sidebar_state = 'expanded'
-
-if 'sidebar' in query_params:
-    if query_params['sidebar'] == 'show':
-        sidebar_state = 'expanded'
-    elif query_params['sidebar'] == 'hide':
-        sidebar_state = 'collapsed'
-
 st.set_page_config(
     page_title="3M4Media | Smart Marketing Intelligence",
     page_icon="📊",
     layout="wide",
-    initial_sidebar_state=sidebar_state
+    initial_sidebar_state="expanded"
 )
 
 # ==============================
@@ -30,8 +19,6 @@ if 'lang' not in st.session_state:
     st.session_state['lang'] = 'en'
 if 'theme' not in st.session_state:
     st.session_state['theme'] = 'dark'
-if 'sidebar_state' not in st.session_state:
-    st.session_state['sidebar_state'] = sidebar_state
 
 lang  = st.session_state['lang']
 theme = st.session_state['theme']
@@ -65,46 +52,28 @@ else:
     GLASS_CHART = "rgba(255,255,255,0.45)"
 
 # ==============================
-# Background Image
-# ==============================
-bg_css = ""
-if 'bg_image' in st.session_state:
-    bg_css = f"""
-    .stApp {{
-        background-image: url("{st.session_state['bg_image']}") !important;
-        background-size: cover !important;
-        background-position: center center !important;
-        background-repeat: no-repeat !important;
-        background-attachment: fixed !important;
-    }}
-    """
-
-# ==============================
-# Inject CSS
+# CSS
 # ==============================
 st.markdown(f"""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap');
 
-* {{ font-family: 'DM Sans', sans-serif; box-sizing: border-box; }}
+/* ── Reset ── */
+* {{ font-family: 'DM Sans', sans-serif; box-sizing: border-box; margin: 0; padding: 0; }}
 h1, h2, h3, h4 {{ font-family: 'Syne', sans-serif !important; }}
 #MainMenu, footer, header {{ visibility: hidden; }}
-.block-container {{ padding-top: 1.2rem !important; padding-bottom: 2rem !important; }}
 
-/* ── Background ── */
-{bg_css}
+/* ── Responsive Meta ── */
+@viewport {{ width: device-width; zoom: 1; }}
 
+/* ── App Background ── */
 .stApp {{
-    background-color: {BG} !important;
+    background: {"linear-gradient(135deg,#060B14 0%,#0A0F1E 60%,#060B14 100%)" if theme=="dark" else "linear-gradient(135deg,#EEF2F7 0%,#DDE6F0 100%)"} !important;
     color: {TEXT} !important;
     transition: all 0.5s ease;
-    {"background: linear-gradient(135deg,#060B14 0%,#0A0F1E 60%,#060B14 100%) !important;" 
-     if theme=="dark" and "bg_image" not in st.session_state else ""}
-    {"background: linear-gradient(135deg,#EEF2F7 0%,#DDE6F0 100%) !important;" 
-     if theme=="light" and "bg_image" not in st.session_state else ""}
 }}
 
-/* ── Animated top line ── */
+/* ── Animated Top Line ── */
 .stApp::before {{
     content: '';
     position: fixed;
@@ -120,18 +89,55 @@ h1, h2, h3, h4 {{ font-family: 'Syne', sans-serif !important; }}
     100% {{ transform: translateX(100%); }}
 }}
 
-/* ── Glass Main Content ── */
+/* ── Main Content ── */
 .block-container {{
     background: {GLASS_MAIN} !important;
     backdrop-filter: blur(18px) !important;
     -webkit-backdrop-filter: blur(18px) !important;
     border-radius: 20px !important;
     border: 1px solid {BORDER} !important;
-    padding: 28px 32px !important;
+    padding: 20px 24px !important;
     transition: all 0.4s ease;
+    max-width: 100% !important;
 }}
 
-/* ── Glass Sidebar ── */
+/* ── Mobile Responsive ── */
+@media (max-width: 768px) {{
+    .block-container {{
+        padding: 12px !important;
+        border-radius: 12px !important;
+        margin: 4px !important;
+    }}
+    [data-testid="stSidebar"] {{
+        width: 80vw !important;
+        min-width: 260px !important;
+    }}
+    [data-testid="stMetricValue"] {{
+        font-size: 1.4rem !important;
+    }}
+    [data-testid="metric-container"] {{
+        padding: 14px !important;
+    }}
+    .stButton > button {{
+        padding: 8px 14px !important;
+        font-size: 0.78rem !important;
+    }}
+    h1 {{ font-size: 1.4rem !important; }}
+    h2 {{ font-size: 1.1rem !important; }}
+}}
+
+@media (max-width: 480px) {{
+    .block-container {{
+        padding: 8px !important;
+        border-radius: 8px !important;
+    }}
+    [data-testid="stMetricValue"] {{
+        font-size: 1.2rem !important;
+    }}
+    h1 {{ font-size: 1.2rem !important; }}
+}}
+
+/* ── Sidebar ── */
 [data-testid="stSidebar"] {{
     background: {GLASS_SIDE} !important;
     backdrop-filter: blur(24px) !important;
@@ -142,6 +148,51 @@ h1, h2, h3, h4 {{ font-family: 'Syne', sans-serif !important; }}
 [data-testid="stSidebar"] * {{ color: {TEXT} !important; }}
 [data-testid="stSidebar"] a {{ text-decoration: none !important; }}
 
+/* ── Sidebar Collapse Button ── */
+[data-testid="collapsedControl"] {{
+    background: {ACCENT} !important;
+    border-radius: 0 10px 10px 0 !important;
+    border: 1px solid {BORDER} !important;
+    color: #FFFFFF !important;
+    width: 28px !important;
+    height: 60px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-shadow: 4px 0 15px rgba(0,180,180,0.3) !important;
+    z-index: 9999 !important;
+    position: fixed !important;
+    top: 50% !important;
+    left: 0 !important;
+    transform: translateY(-50%) !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+}}
+[data-testid="collapsedControl"]:hover {{
+    background: #007A7A !important;
+    width: 34px !important;
+    box-shadow: 6px 0 20px rgba(0,180,180,0.5) !important;
+}}
+[data-testid="collapsedControl"] svg {{
+    color: #FFFFFF !important;
+    fill: #FFFFFF !important;
+    width: 16px !important;
+    height: 16px !important;
+}}
+
+/* ── Sidebar Expand Button ── */
+[data-testid="baseButton-headerNoPadding"] {{
+    background: rgba(0,180,180,0.15) !important;
+    border-radius: 8px !important;
+    border: 1px solid {BORDER} !important;
+    color: {ACCENT} !important;
+    transition: all 0.3s ease !important;
+}}
+[data-testid="baseButton-headerNoPadding"]:hover {{
+    background: rgba(0,180,180,0.3) !important;
+    box-shadow: 0 0 15px rgba(0,180,180,0.3) !important;
+}}
+
 /* ── KPI Cards ── */
 [data-testid="metric-container"] {{
     background: {GLASS_CARD} !important;
@@ -149,7 +200,7 @@ h1, h2, h3, h4 {{ font-family: 'Syne', sans-serif !important; }}
     -webkit-backdrop-filter: blur(16px) !important;
     border: 1px solid {BORDER} !important;
     border-radius: 16px !important;
-    padding: 22px !important;
+    padding: 20px !important;
     position: relative;
     overflow: hidden;
     transition: all 0.35s cubic-bezier(0.4,0,0.2,1);
@@ -171,12 +222,12 @@ h1, h2, h3, h4 {{ font-family: 'Syne', sans-serif !important; }}
 [data-testid="stMetricValue"] {{
     font-family: 'Syne', sans-serif !important;
     color: {ACCENT} !important;
-    font-size: 2rem !important;
+    font-size: 1.8rem !important;
     font-weight: 800 !important;
 }}
 [data-testid="stMetricLabel"] {{
     color: {SUBTEXT} !important;
-    font-size: 0.72rem !important;
+    font-size: 0.70rem !important;
     text-transform: uppercase !important;
     letter-spacing: 1.8px !important;
 }}
@@ -195,6 +246,7 @@ h1, h2, h3, h4 {{ font-family: 'Syne', sans-serif !important; }}
     text-transform: uppercase !important;
     transition: all 0.3s ease !important;
     box-shadow: 0 4px 16px rgba(0,180,180,0.25) !important;
+    width: 100% !important;
 }}
 .stButton > button:hover {{
     transform: translateY(-2px) !important;
@@ -230,11 +282,9 @@ h1, h2, h3, h4 {{ font-family: 'Syne', sans-serif !important; }}
     border: 2px dashed {BORDER} !important;
     border-radius: 16px !important;
     padding: 20px !important;
-    transition: all 0.3s ease;
 }}
 [data-testid="stFileUploader"]:hover {{
     border-color: {ACCENT} !important;
-    background: rgba(0,180,180,0.08) !important;
 }}
 
 /* ── Status ── */
@@ -246,6 +296,11 @@ h1, h2, h3, h4 {{ font-family: 'Syne', sans-serif !important; }}
 .stInfo {{
     background: rgba(0,100,255,0.06) !important;
     border: 1px solid rgba(0,100,255,0.25) !important;
+    border-radius: 10px !important;
+}}
+.stWarning {{
+    background: rgba(255,180,0,0.06) !important;
+    border: 1px solid rgba(255,180,0,0.25) !important;
     border-radius: 10px !important;
 }}
 
@@ -263,269 +318,88 @@ hr {{ border-color: {BORDER} !important; opacity: 0.6 !important; }}
     border: 2px solid {BORDER} !important;
     padding: 3px !important;
     transition: all 0.3s;
+    max-width: 100% !important;
 }}
 [data-testid="stSidebar"] img:hover {{
     border-color: {ACCENT} !important;
     box-shadow: 0 0 20px rgba(0,180,180,0.3) !important;
 }}
 
-/* ============================== */
-/* تحسينات التليفون وحل مشكلة السهم */
-/* ============================== */
-
-/* زر إظهار القائمة الجانبية (يظهر فقط لما تكون القائمة مختفية) */
-.show-sidebar-btn {{
-    position: fixed;
-    bottom: 80px;
-    left: 20px;
-    background: {ACCENT};
-    color: white;
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    box-shadow: 0 4px 15px rgba(0,180,180,0.4);
-    z-index: 9999;
-    font-size: 1.3rem;
-    border: 2px solid rgba(255,255,255,0.2);
-    transition: all 0.3s ease;
-    backdrop-filter: blur(5px);
-    animation: pulse 2s infinite;
-}}
-.show-sidebar-btn:hover {{
-    transform: scale(1.1);
-    box-shadow: 0 8px 25px rgba(0,180,180,0.6);
-}}
-
-/* رسالة توجيهية */
-.sidebar-tip {{
-    position: fixed;
-    bottom: 140px;
-    left: 25px;
-    background: {GLASS_CARD};
-    backdrop-filter: blur(10px);
-    color: {TEXT};
-    padding: 10px 18px;
-    border-radius: 30px;
-    font-size: 0.85rem;
-    z-index: 9998;
-    border-left: 3px solid {ACCENT};
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-    animation: fadeTip 3s infinite;
-    max-width: 250px;
-    border: 1px solid {BORDER};
-}}
-@keyframes fadeTip {{
-    0% {{ opacity: 0; transform: translateY(10px); }}
-    10% {{ opacity: 1; transform: translateY(0); }}
-    90% {{ opacity: 1; transform: translateY(0); }}
-    100% {{ opacity: 0; transform: translateY(-10px); }}
-}}
-
-@keyframes pulse {{
-    0% {{ transform: scale(1); }}
-    50% {{ transform: scale(1.05); }}
-    100% {{ transform: scale(1); }}
-}}
-
-/* تحسينات التليفون */
-@media (max-width: 768px) {{
-    /* تحجيم الخطوط */
-    h1 {{ font-size: 1.5rem !important; }}
-    h2 {{ font-size: 1.3rem !important; }}
-    h3 {{ font-size: 1.1rem !important; }}
-    
-    /* الأعمدة تأخذ عرض كامل */
-    div[data-testid="column"] {{
-        width: 100% !important;
-        flex: 0 0 100% !important;
-        min-width: 100% !important;
-        margin-bottom: 15px !important;
-    }}
-    
-    /* البطاقات */
-    [data-testid="metric-container"] {{
-        padding: 15px !important;
-    }}
-    [data-testid="stMetricValue"] {{
-        font-size: 1.5rem !important;
-    }}
-    
-    /* القائمة العلوية */
-    .mobile-nav {{
-        display: flex !important;
-        justify-content: space-around;
-        background: {GLASS_CARD};
-        backdrop-filter: blur(10px);
-        padding: 8px 5px;
-        border-radius: 40px;
-        margin-bottom: 20px;
-        border: 1px solid {BORDER};
-    }}
-    .mobile-nav-btn {{
-        flex: 1;
-        text-align: center;
-        padding: 8px 2px;
-        border-radius: 30px;
-        font-size: 0.7rem;
-        color: {SUBTEXT};
-        transition: all 0.3s;
-        cursor: pointer;
-    }}
-    .mobile-nav-btn.active {{
-        background: {ACCENT};
-        color: white;
-        font-weight: 600;
-    }}
-    
-    /* تحسين ظهور الجداول */
-    div[data-testid="stDataFrame"] {{
-        overflow-x: auto !important;
-        font-size: 0.75rem !important;
-    }}
-    
-    /* خفاء العناصر غير الضرورية */
-    .css-17lntkn, .css-1r6slb0.css-1wgc5nf {{
-        display: none !important;
-    }}
-    
-    /* تحسين أزرار التحميل */
-    .stButton > button {{
-        padding: 8px 12px !important;
-        font-size: 0.7rem !important;
-    }}
-    
-    /* تكبير الزر في التليفون */
-    .show-sidebar-btn {{
-        bottom: 90px;
-        width: 55px;
-        height: 55px;
-        font-size: 1.5rem;
-    }}
-    .sidebar-tip {{
-        bottom: 155px;
-        font-size: 0.8rem;
-        padding: 8px 15px;
-    }}
-}}
-
-@media (min-width: 769px) {{
-    .mobile-nav {{ display: none !important; }}
+/* ── Radio ── */
+[data-testid="stRadio"] label {{
+    color: {TEXT} !important;
+    font-size: 0.85rem !important;
 }}
 </style>
 """, unsafe_allow_html=True)
-
-# ==============================
-# القائمة العلوية للتليفون
-# ==============================
-st.markdown("""
-<div class="mobile-nav">
-    <div class="mobile-nav-btn" onclick="window.location.href='?page=overview'">📊 نظرة عامة</div>
-    <div class="mobile-nav-btn" onclick="window.location.href='?page=client'">👤 عميل</div>
-    <div class="mobile-nav-btn" onclick="window.location.href='?page=ai'">🤖 توصيات</div>
-    <div class="mobile-nav-btn" onclick="window.location.href='?page=upload'">📁 رفع</div>
-</div>
-""", unsafe_allow_html=True)
-
-# ==============================
-# زر إظهار القائمة (يظهر فقط لما القائمة مختفية)
-# ==============================
-if st.session_state['sidebar_state'] == 'collapsed' or sidebar_state == 'collapsed':
-    st.markdown(f"""
-    <div class="show-sidebar-btn" onclick="window.location.href='?sidebar=show'" title="إظهار القائمة الجانبية">
-        ☰
-    </div>
-    <div class="sidebar-tip">
-        💡 <strong>القائمة مختفية!</strong><br>
-        اضغط على الزر الأزرق 👈 لإظهارها
-    </div>
-    """, unsafe_allow_html=True)
-
-# ==============================
-# تحديث session_state بناءً على URL parameters
-# ==============================
-if 'sidebar' in query_params:
-    if query_params['sidebar'] == 'show':
-        st.session_state['sidebar_state'] = 'expanded'
-    elif query_params['sidebar'] == 'hide':
-        st.session_state['sidebar_state'] = 'collapsed'
 
 # ==============================
 # Translations
 # ==============================
 TRANSLATIONS = {
     "en": {
-        "dashboard_title": "3M4Media Intelligence",
-        "overview":        "Overview",
-        "client_view":     "Client View",
-        "ai_insights":     "AI Insights",
-        "upload_data":     "Upload Data",
-        "total_clicks":    "Total Clicks",
-        "total_impressions":"Total Impressions",
-        "avg_roi":         "Average ROI",
-        "avg_ctr":         "Average CTR",
-        "avg_conversion":  "Conversion Rate",
-        "avg_cost":        "Avg Acquisition Cost",
-        "best_platform":   "Best Platform",
-        "best_campaign":   "Best Campaign Goal",
+        "dashboard_title":      "3M4Media Intelligence",
+        "overview":             "Overview",
+        "client_view":          "Client View",
+        "ai_insights":          "AI Insights",
+        "upload_data":          "Upload Data",
+        "total_clicks":         "Total Clicks",
+        "total_impressions":    "Total Impressions",
+        "avg_roi":              "Average ROI",
+        "avg_ctr":              "Average CTR",
+        "avg_conversion":       "Conversion Rate",
+        "avg_cost":             "Avg Acquisition Cost",
+        "best_platform":        "Best Platform",
+        "best_campaign":        "Best Campaign Goal",
         "campaign_performance": "Campaign Performance",
         "platform_comparison":  "Platform Comparison",
-        "monthly_trend":   "Monthly ROI Trend",
-        "ai_recommendation":"AI Recommendations",
-        "prediction":      "Next Month Prediction",
-        "generate_report": "📄 Generate PDF Report",
-        "select_client":   "Select Client",
-        "upload_csv":      "Upload CSV or Parquet File",
-        "dark_mode":       "🌙 Dark",
-        "light_mode":      "☀️ Light",
-        "theme":           "Theme",
-        "language":        "Language",
-        "live_stats":      "Live Stats",
-        "total_records":   "Total Records",
-        "active_clients":  "Active Clients",
-        "owner":           "Founder & CEO",
-        "follow_us":       "Follow Us",
-        "bg_image":        "Background Image",
-        "reset_bg":        "🗑️ Reset Background",
-        "bg_updated":      "✅ Background updated!",
+        "monthly_trend":        "Monthly ROI Trend",
+        "ai_recommendation":    "AI Recommendations",
+        "prediction":           "Next Month Prediction",
+        "generate_report":      "📄 Generate PDF Report",
+        "select_client":        "Select Client",
+        "upload_csv":           "Upload CSV or Parquet File",
+        "dark_mode":            "🌙 Dark",
+        "light_mode":           "☀️ Light",
+        "theme":                "Theme",
+        "language":             "Language",
+        "live_stats":           "Live Stats",
+        "total_records":        "Total Records",
+        "active_clients":       "Active Clients",
+        "owner":                "Founder & CEO",
+        "follow_us":            "Follow Us",
     },
     "ar": {
-        "dashboard_title": "منصة 3M4Media الذكية",
-        "overview":        "نظرة عامة",
-        "client_view":     "عرض العميل",
-        "ai_insights":     "توصيات الذكاء الاصطناعي",
-        "upload_data":     "رفع بيانات",
-        "total_clicks":    "إجمالي النقرات",
-        "total_impressions":"إجمالي المشاهدات",
-        "avg_roi":         "متوسط العائد",
-        "avg_ctr":         "متوسط النقر",
-        "avg_conversion":  "معدل التحويل",
-        "avg_cost":        "متوسط تكلفة الاكتساب",
-        "best_platform":   "أفضل منصة",
-        "best_campaign":   "أفضل هدف حملة",
+        "dashboard_title":      "منصة 3M4Media الذكية",
+        "overview":             "نظرة عامة",
+        "client_view":          "عرض العميل",
+        "ai_insights":          "توصيات الذكاء الاصطناعي",
+        "upload_data":          "رفع بيانات",
+        "total_clicks":         "إجمالي النقرات",
+        "total_impressions":    "إجمالي المشاهدات",
+        "avg_roi":              "متوسط العائد",
+        "avg_ctr":              "متوسط النقر",
+        "avg_conversion":       "معدل التحويل",
+        "avg_cost":             "متوسط تكلفة الاكتساب",
+        "best_platform":        "أفضل منصة",
+        "best_campaign":        "أفضل هدف حملة",
         "campaign_performance": "أداء الحملات",
         "platform_comparison":  "مقارنة المنصات",
-        "monthly_trend":   "الاتجاه الشهري للعائد",
-        "ai_recommendation":"توصيات الذكاء الاصطناعي",
-        "prediction":      "توقعات الشهر الجاي",
-        "generate_report": "📄 توليد تقرير PDF",
-        "select_client":   "اختر العميل",
-        "upload_csv":      "ارفع ملف CSV أو Parquet",
-        "dark_mode":       "🌙 داكن",
-        "light_mode":      "☀️ فاتح",
-        "theme":           "المظهر",
-        "language":        "اللغة",
-        "live_stats":      "إحصائيات مباشرة",
-        "total_records":   "إجمالي السجلات",
-        "active_clients":  "العملاء النشطين",
-        "owner":           "المؤسس والرئيس التنفيذي",
-        "follow_us":       "تابعنا",
-        "bg_image":        "صورة الخلفية",
-        "reset_bg":        "🗑️ إزالة الخلفية",
-        "bg_updated":      "✅ تم تحديث الخلفية!",
+        "monthly_trend":        "الاتجاه الشهري للعائد",
+        "ai_recommendation":    "توصيات الذكاء الاصطناعي",
+        "prediction":           "توقعات الشهر الجاي",
+        "generate_report":      "📄 توليد تقرير PDF",
+        "select_client":        "اختر العميل",
+        "upload_csv":           "ارفع ملف CSV أو Parquet",
+        "dark_mode":            "🌙 داكن",
+        "light_mode":           "☀️ فاتح",
+        "theme":                "المظهر",
+        "language":             "اللغة",
+        "live_stats":           "إحصائيات مباشرة",
+        "total_records":        "إجمالي السجلات",
+        "active_clients":       "العملاء النشطين",
+        "owner":                "المؤسس والرئيس التنفيذي",
+        "follow_us":            "تابعنا",
     }
 }
 
@@ -558,31 +432,31 @@ with st.sidebar:
     else:
         st.markdown(f"""
         <div style='text-align:center; padding:16px 0;'>
-            <span style='font-family:Syne,sans-serif; font-size:2.2rem;
+            <span style='font-family:Syne,sans-serif; font-size:2rem;
                          font-weight:800; color:{ACCENT};'>3M</span>
-            <span style='font-family:Syne,sans-serif; font-size:0.9rem; color:{SUBTEXT};
-                         display:block; letter-spacing:5px; margin-top:-4px;'>MEDIA</span>
+            <span style='font-family:Syne,sans-serif; font-size:0.9rem;
+                         color:{SUBTEXT}; display:block; letter-spacing:5px;'>MEDIA</span>
         </div>
         """, unsafe_allow_html=True)
 
     st.markdown("<hr>", unsafe_allow_html=True)
 
     # ── Language ──
-    st.markdown(f"<p style='color:{SUBTEXT}; font-size:0.70rem; text-transform:uppercase; letter-spacing:2px; margin:0 0 6px 0;'>🌐 {t('language')}</p>", unsafe_allow_html=True)
+    st.markdown(f"<p style='color:{SUBTEXT}; font-size:0.70rem; text-transform:uppercase; letter-spacing:2px; margin:0 0 6px 0;'>&#127760; {t('language')}</p>", unsafe_allow_html=True)
     c1, c2 = st.columns(2)
     with c1:
-        if st.button("🇬🇧 EN", use_container_width=True, key="btn_en"):
+        if st.button("&#127468;&#127463; EN", use_container_width=True, key="btn_en"):
             st.session_state['lang'] = 'en'
             st.rerun()
     with c2:
-        if st.button("🇪🇬 AR", use_container_width=True, key="btn_ar"):
+        if st.button("&#127466;&#127468; AR", use_container_width=True, key="btn_ar"):
             st.session_state['lang'] = 'ar'
             st.rerun()
 
     st.markdown("<div style='height:10px'></div>", unsafe_allow_html=True)
 
     # ── Theme ──
-    st.markdown(f"<p style='color:{SUBTEXT}; font-size:0.70rem; text-transform:uppercase; letter-spacing:2px; margin:0 0 6px 0;'>🎨 {t('theme')}</p>", unsafe_allow_html=True)
+    st.markdown(f"<p style='color:{SUBTEXT}; font-size:0.70rem; text-transform:uppercase; letter-spacing:2px; margin:0 0 6px 0;'>&#127912; {t('theme')}</p>", unsafe_allow_html=True)
     c3, c4 = st.columns(2)
     with c3:
         if st.button(t("dark_mode"), use_container_width=True, key="btn_dark"):
@@ -591,30 +465,6 @@ with st.sidebar:
     with c4:
         if st.button(t("light_mode"), use_container_width=True, key="btn_light"):
             st.session_state['theme'] = 'light'
-            st.rerun()
-
-    st.markdown("<div style='height:10px'></div>", unsafe_allow_html=True)
-
-    # ── Background Upload ──
-    st.markdown(f"<p style='color:{SUBTEXT}; font-size:0.70rem; text-transform:uppercase; letter-spacing:2px; margin:0 0 6px 0;'>&#128247; {t('bg_image')}</p>", unsafe_allow_html=True)
-
-    bg_file = st.file_uploader(
-        "", type=['png','jpg','jpeg','webp'],
-        label_visibility="collapsed",
-        key="bg_uploader"
-    )
-
-    if bg_file is not None:
-        bg_bytes = bg_file.read()
-        bg_b64   = base64.b64encode(bg_bytes).decode()
-        ext      = bg_file.name.split('.')[-1].lower()
-        st.session_state['bg_image'] = f"data:image/{ext};base64,{bg_b64}"
-        st.success(t("bg_updated"))
-        st.rerun()
-
-    if 'bg_image' in st.session_state:
-        if st.button(t("reset_bg"), use_container_width=True, key="btn_reset"):
-            st.session_state.pop('bg_image', None)
             st.rerun()
 
     st.markdown("<hr>", unsafe_allow_html=True)
@@ -633,11 +483,6 @@ with st.sidebar:
     current_page = pages[page]
 
     st.markdown("<hr>", unsafe_allow_html=True)
-    
-    # ── زر إخفاء القائمة (اختياري) ──
-    if st.button("🔽 إخفاء القائمة", use_container_width=True):
-        st.session_state['sidebar_state'] = 'collapsed'
-        st.rerun()
 
     # ── Live Stats ──
     st.markdown(f"""
@@ -648,14 +493,14 @@ with st.sidebar:
                   letter-spacing:2px; margin:0 0 10px 0;'>
             &#128225; {t('live_stats')}
         </p>
-        <p style='color:{ACCENT}; font-size:1.5rem; font-weight:800;
+        <p style='color:{ACCENT}; font-size:1.4rem; font-weight:800;
                   font-family:Syne,sans-serif; margin:0; line-height:1;'>
             {df.shape[0]:,}
         </p>
         <p style='color:{SUBTEXT}; font-size:0.70rem; margin:2px 0 12px 0;'>
             {t('total_records')}
         </p>
-        <p style='color:{ACCENT}; font-size:1.5rem; font-weight:800;
+        <p style='color:{ACCENT}; font-size:1.4rem; font-weight:800;
                   font-family:Syne,sans-serif; margin:0; line-height:1;'>
             {df['Company'].nunique()}
         </p>
