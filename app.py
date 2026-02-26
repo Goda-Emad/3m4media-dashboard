@@ -10,7 +10,7 @@ st.set_page_config(
     page_title="3M4Media | Smart Marketing Intelligence",
     page_icon="📊",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="collapsed"   # collapsed → زرار الفتح يبان على الموبايل
 )
 
 # ==============================
@@ -86,9 +86,9 @@ h1, h2, h3, h4 {{ font-family: 'Syne', sans-serif !important; }}
     background-color: {BG} !important;
     color: {TEXT} !important;
     transition: all 0.5s ease;
-    {"background: linear-gradient(135deg,#060B14 0%,#0A0F1E 60%,#060B14 100%) !important;" 
+    {"background: linear-gradient(135deg,#060B14 0%,#0A0F1E 60%,#060B14 100%) !important;"
      if theme=="dark" and "bg_image" not in st.session_state else ""}
-    {"background: linear-gradient(135deg,#EEF2F7 0%,#DDE6F0 100%) !important;" 
+    {"background: linear-gradient(135deg,#EEF2F7 0%,#DDE6F0 100%) !important;"
      if theme=="light" and "bg_image" not in st.session_state else ""}
 }}
 
@@ -125,10 +125,17 @@ h1, h2, h3, h4 {{ font-family: 'Syne', sans-serif !important; }}
     backdrop-filter: blur(24px) !important;
     -webkit-backdrop-filter: blur(24px) !important;
     border-right: 1px solid {BORDER} !important;
-    transition: all 0.4s ease;
+    transition: transform 0.35s cubic-bezier(0.4,0,0.2,1),
+                opacity   0.35s ease,
+                box-shadow 0.35s ease !important;
 }}
 [data-testid="stSidebar"] * {{ color: {TEXT} !important; }}
 [data-testid="stSidebar"] a {{ text-decoration: none !important; }}
+
+/* Sidebar مفتوح ← shadow درامي */
+[data-testid="stSidebar"][aria-expanded="true"] {{
+    box-shadow: 8px 0 48px rgba(0,0,0,0.5) !important;
+}}
 
 /* ── KPI Cards ── */
 [data-testid="metric-container"] {{
@@ -255,6 +262,134 @@ hr {{ border-color: {BORDER} !important; opacity: 0.6 !important; }}
 [data-testid="stSidebar"] img:hover {{
     border-color: {ACCENT} !important;
     box-shadow: 0 0 20px rgba(0,180,180,0.3) !important;
+}}
+
+/* ════════════════════════════════════════
+   📱 MOBILE & TABLET RESPONSIVE
+   ════════════════════════════════════════ */
+
+/* ── زرار فتح الـ Sidebar ── */
+[data-testid="collapsedControl"] {{
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 46px !important;
+    height: 46px !important;
+    background: linear-gradient(135deg, {ACCENT} 0%, #007A7A 100%) !important;
+    border-radius: 13px !important;
+    border: none !important;
+    box-shadow: 0 4px 20px rgba(0,180,180,0.4) !important;
+    position: fixed !important;
+    top: 14px !important;
+    left: 14px !important;
+    z-index: 99999 !important;
+    cursor: pointer !important;
+    transition: all 0.3s cubic-bezier(0.4,0,0.2,1) !important;
+}}
+[data-testid="collapsedControl"]:hover {{
+    transform: scale(1.1) !important;
+    box-shadow: 0 8px 30px rgba(0,180,180,0.55) !important;
+}}
+[data-testid="collapsedControl"] svg {{
+    fill: white !important;
+    width: 22px !important;
+    height: 22px !important;
+}}
+
+/* ── MOBILE: max 768px ── */
+@media screen and (max-width: 768px) {{
+
+    /* Main content padding */
+    .block-container {{
+        padding: 16px 12px !important;
+        border-radius: 14px !important;
+        margin: 0 6px 0 6px !important;
+    }}
+
+    /* Sidebar يطلع overlay فوق المحتوى */
+    [data-testid="stSidebar"] {{
+        position: fixed !important;
+        top: 0 !important; left: 0 !important;
+        height: 100dvh !important;
+        width: 280px !important;
+        max-width: 88vw !important;
+        z-index: 9998 !important;
+        overflow-y: auto !important;
+    }}
+
+    /* KPI values أصغر */
+    [data-testid="stMetricValue"] {{
+        font-size: 1.45rem !important;
+    }}
+    [data-testid="metric-container"] {{
+        padding: 14px 12px !important;
+    }}
+
+    /* Charts */
+    .js-plotly-plot {{ border-radius: 12px !important; }}
+
+    /* Typography */
+    h1 {{ font-size: 1.45rem !important; }}
+    h2 {{ font-size: 1.2rem !important; }}
+    h3 {{ font-size: 1rem !important; }}
+
+    /* Buttons full width */
+    .stButton > button {{
+        width: 100% !important;
+        min-height: 48px !important;
+        font-size: 0.78rem !important;
+    }}
+
+    /* Selectbox */
+    [data-testid="stSelectbox"] > div > div {{
+        min-height: 48px !important;
+        font-size: 0.85rem !important;
+    }}
+}}
+
+/* ── TABLET: 769px → 1024px ── */
+@media screen and (min-width: 769px) and (max-width: 1024px) {{
+
+    .block-container {{
+        padding: 20px 20px !important;
+    }}
+
+    [data-testid="stMetricValue"] {{
+        font-size: 1.65rem !important;
+    }}
+
+    [data-testid="stSidebar"] {{
+        min-width: 235px !important;
+        max-width: 245px !important;
+    }}
+
+    h1 {{ font-size: 1.6rem !important; }}
+}}
+
+/* ── LARGE: > 1400px ── */
+@media screen and (min-width: 1400px) {{
+    .block-container {{
+        padding: 32px 40px !important;
+    }}
+}}
+
+/* ── Touch devices: إزالة hover effects ── */
+@media (hover: none) and (pointer: coarse) {{
+    [data-testid="metric-container"]:hover {{
+        transform: none !important;
+        box-shadow: 0 4px 24px rgba(0,180,180,0.06) !important;
+    }}
+    .stButton > button:hover {{
+        transform: none !important;
+    }}
+    [data-testid="collapsedControl"]:hover {{
+        transform: none !important;
+    }}
+    /* Touch targets كبيرة */
+    .stButton > button,
+    [data-testid="stSelectbox"] > div > div {{
+        min-height: 48px !important;
+    }}
 }}
 </style>
 """, unsafe_allow_html=True)
@@ -409,7 +544,6 @@ with st.sidebar:
         label_visibility="collapsed",
         key="bg_uploader"
     )
-
     if bg_file is not None:
         bg_bytes = bg_file.read()
         bg_b64   = base64.b64encode(bg_bytes).decode()
@@ -434,7 +568,6 @@ with st.sidebar:
         f"&#129302;  {t('ai_insights')}": "ai",
         f"&#128193;  {t('upload_data')}": "upload",
     }
-
     page         = st.radio("", list(pages.keys()), label_visibility="collapsed")
     current_page = pages[page]
 
@@ -499,10 +632,8 @@ with st.sidebar:
                   border:1px solid rgba(255,255,255,0.08);'>
             <span style='font-size:1.2rem;'>&#128247;</span>
             <div>
-                <p style='margin:0; font-size:0.80rem; font-weight:700;
-                          color:{TEXT};'>Eng. Issa Mkhaimer</p>
-                <p style='margin:0; font-size:0.68rem;
-                          color:{SUBTEXT};'>@3essa.official</p>
+                <p style='margin:0; font-size:0.80rem; font-weight:700; color:{TEXT};'>Eng. Issa Mkhaimer</p>
+                <p style='margin:0; font-size:0.68rem; color:{SUBTEXT};'>@3essa.official</p>
             </div>
         </a>
         <a href='https://www.instagram.com/3m4media'
@@ -514,10 +645,8 @@ with st.sidebar:
                   border:1px solid rgba(0,180,180,0.22);'>
             <span style='font-size:1.2rem;'>&#128247;</span>
             <div>
-                <p style='margin:0; font-size:0.80rem; font-weight:700;
-                          color:{ACCENT};'>3M4Media</p>
-                <p style='margin:0; font-size:0.68rem;
-                          color:{SUBTEXT};'>@3m4media</p>
+                <p style='margin:0; font-size:0.80rem; font-weight:700; color:{ACCENT};'>3M4Media</p>
+                <p style='margin:0; font-size:0.68rem; color:{SUBTEXT};'>@3m4media</p>
             </div>
         </a>
     </div>
