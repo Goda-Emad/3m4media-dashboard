@@ -25,6 +25,17 @@ lang  = st.session_state['lang']
 theme = st.session_state['theme']
 
 # ==============================
+# Viewport Meta — مهم جداً للموبايل
+# ==============================
+st.markdown("""
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<style>
+    /* منع zoom غير مقصود على iOS */
+    input, select, textarea { font-size: 16px !important; }
+</style>
+""", unsafe_allow_html=True)
+
+# ==============================
 # Theme Colors
 # ==============================
 if theme == 'dark':
@@ -268,82 +279,116 @@ hr {{ border-color: {BORDER} !important; opacity: 0.6 !important; }}
    📱 MOBILE & TABLET RESPONSIVE
    ════════════════════════════════════════ */
 
-/* ── زرار فتح الـ Sidebar ── */
-[data-testid="collapsedControl"] {{
+/* ── زرار فتح الـ Sidebar — كل الأشكال الممكنة في Streamlit ── */
+[data-testid="collapsedControl"],
+button[kind="headerNoPadding"],
+.st-emotion-cache-1egp75f,
+section[data-testid="stSidebar"] + div button,
+[aria-label="open sidebar"],
+[aria-label="Close sidebar"],
+[data-testid="stSidebarCollapsedControl"] {{
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    width: 46px !important;
-    height: 46px !important;
+    width: 48px !important;
+    height: 48px !important;
+    min-width: 48px !important;
     background: linear-gradient(135deg, {ACCENT} 0%, #007A7A 100%) !important;
-    border-radius: 13px !important;
+    border-radius: 14px !important;
     border: none !important;
-    box-shadow: 0 4px 20px rgba(0,180,180,0.4) !important;
+    box-shadow: 0 4px 24px rgba(0,180,180,0.45) !important;
     position: fixed !important;
-    top: 14px !important;
-    left: 14px !important;
-    z-index: 99999 !important;
+    top: 12px !important;
+    left: 12px !important;
+    z-index: 999999 !important;
     cursor: pointer !important;
-    transition: all 0.3s cubic-bezier(0.4,0,0.2,1) !important;
+    transition: all 0.3s ease !important;
+    visibility: visible !important;
+    opacity: 1 !important;
 }}
-[data-testid="collapsedControl"]:hover {{
-    transform: scale(1.1) !important;
-    box-shadow: 0 8px 30px rgba(0,180,180,0.55) !important;
-}}
-[data-testid="collapsedControl"] svg {{
+[data-testid="collapsedControl"] svg,
+[data-testid="stSidebarCollapsedControl"] svg {{
     fill: white !important;
+    color: white !important;
     width: 22px !important;
     height: 22px !important;
+}}
+
+/* ── Sidebar open state ── */
+[data-testid="stSidebar"][aria-expanded="true"] {{
+    box-shadow: 8px 0 48px rgba(0,0,0,0.5) !important;
 }}
 
 /* ── MOBILE: max 768px ── */
 @media screen and (max-width: 768px) {{
 
-    /* Main content padding */
-    .block-container {{
-        padding: 16px 12px !important;
-        border-radius: 14px !important;
-        margin: 0 6px 0 6px !important;
+    /* نص KPI أصغر عشان ما يتقطعش */
+    [data-testid="stMetricValue"] {{
+        font-size: 1.1rem !important;
+        word-break: break-all !important;
+        overflow-wrap: anywhere !important;
+    }}
+    [data-testid="stMetricLabel"] {{
+        font-size: 0.60rem !important;
+        letter-spacing: 1px !important;
+    }}
+    [data-testid="metric-container"] {{
+        padding: 12px 10px !important;
+        min-width: 0 !important;
     }}
 
-    /* Sidebar يطلع overlay فوق المحتوى */
+    /* Main content */
+    .block-container {{
+        padding: 16px 10px !important;
+        border-radius: 14px !important;
+        margin: 0 4px !important;
+        overflow-x: hidden !important;
+    }}
+
+    /* منع overflow أفقي */
+    .stApp {{
+        overflow-x: hidden !important;
+    }}
+
+    /* Sidebar overlay */
     [data-testid="stSidebar"] {{
         position: fixed !important;
         top: 0 !important; left: 0 !important;
         height: 100dvh !important;
-        width: 280px !important;
-        max-width: 88vw !important;
-        z-index: 9998 !important;
+        width: 275px !important;
+        max-width: 85vw !important;
+        z-index: 99998 !important;
         overflow-y: auto !important;
-    }}
-
-    /* KPI values أصغر */
-    [data-testid="stMetricValue"] {{
-        font-size: 1.45rem !important;
-    }}
-    [data-testid="metric-container"] {{
-        padding: 14px 12px !important;
     }}
 
     /* Charts */
     .js-plotly-plot {{ border-radius: 12px !important; }}
 
     /* Typography */
-    h1 {{ font-size: 1.45rem !important; }}
-    h2 {{ font-size: 1.2rem !important; }}
-    h3 {{ font-size: 1rem !important; }}
+    h1 {{ font-size: 1.3rem !important; }}
+    h2 {{ font-size: 1.1rem !important; }}
+    h3 {{ font-size: 0.95rem !important; }}
 
-    /* Buttons full width */
+    /* Buttons */
     .stButton > button {{
         width: 100% !important;
         min-height: 48px !important;
-        font-size: 0.78rem !important;
+        font-size: 0.76rem !important;
     }}
 
     /* Selectbox */
     [data-testid="stSelectbox"] > div > div {{
         min-height: 48px !important;
         font-size: 0.85rem !important;
+    }}
+
+    /* Columns: stack على موبايل */
+    [data-testid="stHorizontalBlock"] {{
+        flex-wrap: wrap !important;
+    }}
+    [data-testid="stHorizontalBlock"] > [data-testid="column"] {{
+        min-width: calc(50% - 8px) !important;
+        flex: 1 1 calc(50% - 8px) !important;
     }}
 }}
 
@@ -355,7 +400,7 @@ hr {{ border-color: {BORDER} !important; opacity: 0.6 !important; }}
     }}
 
     [data-testid="stMetricValue"] {{
-        font-size: 1.65rem !important;
+        font-size: 1.5rem !important;
     }}
 
     [data-testid="stSidebar"] {{
@@ -373,7 +418,7 @@ hr {{ border-color: {BORDER} !important; opacity: 0.6 !important; }}
     }}
 }}
 
-/* ── Touch devices: إزالة hover effects ── */
+/* ── Touch devices ── */
 @media (hover: none) and (pointer: coarse) {{
     [data-testid="metric-container"]:hover {{
         transform: none !important;
@@ -382,10 +427,7 @@ hr {{ border-color: {BORDER} !important; opacity: 0.6 !important; }}
     .stButton > button:hover {{
         transform: none !important;
     }}
-    [data-testid="collapsedControl"]:hover {{
-        transform: none !important;
-    }}
-    /* Touch targets كبيرة */
+    /* Touch targets */
     .stButton > button,
     [data-testid="stSelectbox"] > div > div {{
         min-height: 48px !important;
