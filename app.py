@@ -6,11 +6,21 @@ import base64
 # ==============================
 # Page Config — أول سطر دايماً
 # ==============================
+# التحقق من query parameters قبل set_page_config
+query_params = st.query_params if hasattr(st, 'query_params') else {}
+sidebar_state = 'expanded'
+
+if 'sidebar' in query_params:
+    if query_params['sidebar'] == 'show':
+        sidebar_state = 'expanded'
+    elif query_params['sidebar'] == 'hide':
+        sidebar_state = 'collapsed'
+
 st.set_page_config(
     page_title="3M4Media | Smart Marketing Intelligence",
     page_icon="📊",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state=sidebar_state
 )
 
 # ==============================
@@ -20,6 +30,8 @@ if 'lang' not in st.session_state:
     st.session_state['lang'] = 'en'
 if 'theme' not in st.session_state:
     st.session_state['theme'] = 'dark'
+if 'sidebar_state' not in st.session_state:
+    st.session_state['sidebar_state'] = sidebar_state
 
 lang  = st.session_state['lang']
 theme = st.session_state['theme']
@@ -68,7 +80,7 @@ if 'bg_image' in st.session_state:
     """
 
 # ==============================
-# Inject CSS (مع إضافة تحسينات التليفون وحل مشكلة السهم)
+# Inject CSS
 # ==============================
 st.markdown(f"""
 <style>
@@ -258,10 +270,10 @@ hr {{ border-color: {BORDER} !important; opacity: 0.6 !important; }}
 }}
 
 /* ============================== */
-/* 🆕 تحسينات التليفون وحل مشكلة السهم */
+/* تحسينات التليفون وحل مشكلة السهم */
 /* ============================== */
 
-/* زر إظهار القائمة الجانبية (حل مشكلة السهم) */
+/* زر إظهار القائمة الجانبية (يظهر فقط لما تكون القائمة مختفية) */
 .show-sidebar-btn {{
     position: fixed;
     bottom: 80px;
@@ -407,7 +419,7 @@ hr {{ border-color: {BORDER} !important; opacity: 0.6 !important; }}
 """, unsafe_allow_html=True)
 
 # ==============================
-# إضافة القائمة العلوية للتليفون
+# القائمة العلوية للتليفون
 # ==============================
 st.markdown("""
 <div class="mobile-nav">
@@ -419,17 +431,27 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ==============================
-# إضافة زر إظهار القائمة (حل مشكلة السهم)
+# زر إظهار القائمة (يظهر فقط لما القائمة مختفية)
 # ==============================
-st.markdown(f"""
-<div class="show-sidebar-btn" onclick="window.location.reload();" title="إظهار القائمة الجانبية">
-    ☰
-</div>
-<div class="sidebar-tip">
-    💡 <strong>القائمة اختفت؟</strong><br>
-    اضغط على الزر الأزرق 👈 لإظهارها مرة أخرى
-</div>
-""", unsafe_allow_html=True)
+if st.session_state['sidebar_state'] == 'collapsed' or sidebar_state == 'collapsed':
+    st.markdown(f"""
+    <div class="show-sidebar-btn" onclick="window.location.href='?sidebar=show'" title="إظهار القائمة الجانبية">
+        ☰
+    </div>
+    <div class="sidebar-tip">
+        💡 <strong>القائمة مختفية!</strong><br>
+        اضغط على الزر الأزرق 👈 لإظهارها
+    </div>
+    """, unsafe_allow_html=True)
+
+# ==============================
+# تحديث session_state بناءً على URL parameters
+# ==============================
+if 'sidebar' in query_params:
+    if query_params['sidebar'] == 'show':
+        st.session_state['sidebar_state'] = 'expanded'
+    elif query_params['sidebar'] == 'hide':
+        st.session_state['sidebar_state'] = 'collapsed'
 
 # ==============================
 # Translations
@@ -611,6 +633,11 @@ with st.sidebar:
     current_page = pages[page]
 
     st.markdown("<hr>", unsafe_allow_html=True)
+    
+    # ── زر إخفاء القائمة (اختياري) ──
+    if st.button("🔽 إخفاء القائمة", use_container_width=True):
+        st.session_state['sidebar_state'] = 'collapsed'
+        st.rerun()
 
     # ── Live Stats ──
     st.markdown(f"""
