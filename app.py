@@ -20,6 +20,8 @@ if 'lang' not in st.session_state:
     st.session_state['lang'] = 'en'
 if 'theme' not in st.session_state:
     st.session_state['theme'] = 'dark'
+if 'sidebar_open' not in st.session_state:
+    st.session_state['sidebar_open'] = True
 
 lang  = st.session_state['lang']
 theme = st.session_state['theme']
@@ -67,7 +69,32 @@ st.markdown(f"""
 * {{ font-family: 'DM Sans', sans-serif; box-sizing: border-box; }}
 h1, h2, h3, h4 {{ font-family: 'Syne', sans-serif !important; }}
 #MainMenu, footer, header {{ visibility: hidden; }}
-.block-container {{ padding-top: 1.2rem !important; padding-bottom: 2rem !important; }}
+.block-container {{ padding-top: 0.5rem !important; padding-bottom: 2rem !important; }}
+
+/* ── زرار Toggle الـ Sidebar ── */
+div[data-testid="stHorizontalBlock"]:first-of-type div[data-testid="column"]:first-child .stButton > button,
+button[key="sidebar_toggle"] {{
+    position: fixed !important;
+    top: 14px !important;
+    left: 14px !important;
+    z-index: 999999 !important;
+    width: 44px !important;
+    height: 44px !important;
+    min-width: 44px !important;
+    padding: 0 !important;
+    font-size: 1.2rem !important;
+    background: linear-gradient(135deg, #00B4B4, #007A7A) !important;
+    border: none !important;
+    border-radius: 13px !important;
+    box-shadow: 0 4px 20px rgba(0,180,180,0.45) !important;
+    transition: all 0.3s ease !important;
+    letter-spacing: 0 !important;
+    text-transform: none !important;
+}}
+div[data-testid="stHorizontalBlock"]:first-of-type div[data-testid="column"]:first-child .stButton > button:hover {{
+    transform: scale(1.1) !important;
+    box-shadow: 0 8px 28px rgba(0,180,180,0.6) !important;
+}}
 
 {bg_css}
 
@@ -417,6 +444,22 @@ def load_data():
     return df
 
 df = load_data()
+
+# ==============================
+# Sidebar Toggle — Python Button
+# الحل الوحيد المضمون على Streamlit Cloud
+# ==============================
+
+# زرار الفتح/الغلق في أعلى يسار الصفحة
+col_toggle, col_space = st.columns([0.04, 0.96])
+with col_toggle:
+    toggle_icon = "✕" if st.session_state['sidebar_open'] else "☰"
+    if st.button(toggle_icon, key="sidebar_toggle"):
+        st.session_state['sidebar_open'] = not st.session_state['sidebar_open']
+        st.rerun()
+
+# حالة الـ sidebar بناءً على session_state
+sidebar_state = "expanded" if st.session_state['sidebar_open'] else "collapsed"
 
 # ==============================
 # Sidebar
